@@ -40,11 +40,13 @@ cp /vagrant/rundeck-hipchat-plugin-1.0.0.jar /var/lib/rundeck/libext/
 chown rundeck:rundeck /var/lib/rundeck/libext/rundeck-hipchat-plugin-1.0.0.jar 
 
 # Configure the system
-#
 
+# Rewrite the rundeck-config.properties to use the IP of this vagrant VM
 sed -i "s^grails.serverURL=.*^grails.serverURL=http://$RDIP:4440^g" /etc/rundeck/rundeck-config.properties 
 
+# Add the Anvils specific ACL
 cp /vagrant/anvils.aclpolicy /etc/rundeck/
+chown rundeck:rundeck /etc/rundeck/anvils.aclpolicy
 
 # Add user/roles to the realm.properties
 cat >> /etc/rundeck/realm.properties <<EOF
