@@ -47,6 +47,7 @@ sed -i "s^grails.serverURL=.*^grails.serverURL=http://$RDIP:4440^g" /etc/rundeck
 # Add the Anvils specific ACL
 cp /vagrant/anvils.aclpolicy /etc/rundeck/
 chown rundeck:rundeck /etc/rundeck/anvils.aclpolicy
+chmod 444 /etc/rundeck/anvils.aclpolicy
 
 # Add user/roles to the realm.properties
 cat >> /etc/rundeck/realm.properties <<EOF
