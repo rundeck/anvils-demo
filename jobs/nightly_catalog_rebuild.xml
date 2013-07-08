@@ -13,11 +13,24 @@
         <script><![CDATA[#!/bin/bash
 set -eu
 CATALOG=$1
-echo "Rebuilding the catalog $CATALOG"
-echo "Done."
+echo "# Rebuild catalog: $CATALOG"
+echo ""
+echo "- customer: ${RD_NODE_ANVILS_CUSTOMER}"
+echo "- location: ${RD_NODE_ANVILS_LOCATION}"
+echo "- database: ${RD_NODE_NAME:-}"
+echo "Completed."
 exit $?]]></script>
         </command>
       </sequence>
+    <nodefilters excludeprecedence="true"> 
+       <include> 
+        <tags>db</tags> 
+      </include> 
+    </nodefilters>  
+    <dispatch> 
+     <threadcount>1</threadcount>  
+     <keepgoing>true</keepgoing> 
+   </dispatch>        
       <description>rebuild the catalog data</description>
       <name>nightly_catalog_rebuild</name>
       <context>
