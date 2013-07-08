@@ -1,0 +1,41 @@
+<joblist>
+  <job>
+    <schedule>
+      <time hour='00' seconds='0' minute='00' />
+      <weekday day='*' />
+      <month month='*' />
+      <year year='*' />
+    </schedule>    
+    <loglevel>INFO</loglevel>
+    <sequence keepgoing='false' strategy='node-first'>
+      <command>
+        <scriptargs>${option.catalog}</scriptargs>
+        <script><![CDATA[#!/bin/bash
+set -eu
+CATALOG=$1
+echo "Rebuilding the catalog $CATALOG"
+echo "Done."
+exit $?]]></script>
+        </command>
+      </sequence>
+      <description>rebuild the catalog data</description>
+      <name>nightly_catalog_rebuild</name>
+      <context>
+        <project>anvils</project>
+        <options>
+          <option required='true' name='catalog' enforcedvalues='true' values='partner,shipping-rates,inventory'>
+            <description>catalog name</description>
+          </option>
+        </options>
+      </context>
+      <notification>
+        <onfailure>
+          <email recipients='bizops@anvils.com' />
+        </onfailure>
+        <onsuccess>
+          <email recipients='bizops@anvils.com' />
+        </onsuccess>
+      </notification>    
+      <group>anvils/</group>
+    </job>
+  </joblist>

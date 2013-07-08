@@ -1,0 +1,48 @@
+<joblist>
+  <job>
+    <loglevel>INFO</loglevel>
+    <sequence keepgoing='false' strategy='node-first'>
+      <command>
+        <scriptargs>${option.repository} ${option.release} ${option.packages}</scriptargs>
+        <script><![CDATA[#!/bin/bash
+set -eu
+[[ $# != 3 ]] && {
+  echo >&2 'usage: $0 repository release pkg1,pkg2,pkgN'
+  exit 2
+}
+REPOSITORY=$1 RELEASE=$2 PACKAGELIST=$3
+
+echo "# PROMOTE"
+echo "## $REPOSITORY/$RELEASE"
+echo "## Promote $REPOSITORY/$RELEASE..."
+
+PACKAGES=( ${PACKAGELIST//,/ } )
+echo "number  packages: ${#PACKAGES[*]}"
+
+for package in ${PACKAGES[*]:-}
+do
+   echo "- $REPOSITORY/$RELEASE/$package"
+done
+
+exit $?]]></script>
+      </command>
+    </sequence>
+    <description>promote the packages to the ops repository.</description>
+    <name>Promote</name>
+    <context>
+      <project>anvils</project>
+      <options>
+        <option required='true' name='repository' enforcedvalues='true' valuesUrl='http://localhost/anvils/options/repositories.json'>
+          <description>repository name</description>
+        </option>        
+        <option required='true' name='release' enforcedvalues='true' valuesUrl='http://localhost/anvils/options/releases/${option.repository.value}.json'>
+          <description>release tag</description>
+        </option>
+        <option required='true' multivalued='true' name='packages' enforcedvalues='true' valuesUrl='http://localhost/anvils/options/packages/${option.release.value}.json' delimiter=','>
+          <description>packages versions</description>
+        </option>
+      </options>
+    </context>
+    <group>anvils</group>
+  </job>
+</joblist>

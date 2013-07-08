@@ -1,0 +1,30 @@
+<joblist>   
+   <job> 
+     <name>start</name>  
+       <description>start the web servers</description>  
+     <loglevel>INFO</loglevel>  
+     <group>anvils/web</group>  
+    <context> 
+      <project>anvils</project> 
+         <options> 
+            <option name="dir" enforcedvalues="true" required="true" 
+             valuesUrl='http://localhost/anvils/options/anvils-dir.json'/>                  
+          </options>        
+    </context>  
+    <sequence threadcount="1" keepgoing="false" strategy="node-first"> 
+     <command> 
+      <scripturl>http://localhost/anvils/scripts/start.sh</scripturl>
+      <scriptargs>${option.dir}</scriptargs>       
+     </command> 
+  </sequence>  
+    <nodefilters excludeprecedence="true"> 
+      <include> 
+        <tags>www</tags> 
+      </include> 
+   </nodefilters>  
+   <dispatch> 
+     <threadcount>1</threadcount>  
+     <keepgoing>true</keepgoing> 
+   </dispatch> 
+  </job>
+</joblist>

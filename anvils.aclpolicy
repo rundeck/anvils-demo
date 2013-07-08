@@ -1,0 +1,76 @@
+description: Acess for dev.
+context:
+  project: '.*'
+for:
+  resource:
+    - allow: read
+  job:
+    - equals:
+        group: 'anvils'
+        name: 'Status'
+      allow: [run,read]
+    - equals:
+        group: 'anvils/web'
+        name: 'Restart'
+      allow: [read]
+  node:
+    - allow: [read,run] # allow read/run for all nodes
+by:
+  group: dev
+
+---
+
+description: Acess for ops.
+context:
+  project: '.*'
+for:
+  resource:
+    - allow: read
+  job:
+    - match:
+        group: 'anvils'
+        name: '.*'
+      allow: [run,read]
+    - match:
+        group: 'anvils'
+        name: 'Promote'
+      allow: [read]
+    - match:
+        group: 'anvils/web'
+        name: '.*'
+      allow: [run,read]
+  node:
+    - allow: [read,run] # allow read/run for all nodes
+by:
+  group: ops
+
+---
+
+description: Acesss for releng.
+context:
+  project: '.*'
+for:
+  resource:
+    - allow: read
+  job:
+    - match:
+        group: 'anvils'
+        name: 'Promote'
+      allow: [run,read]
+  node:
+    - allow: [read,run] # allow read/run for all nodes
+by:
+  group: ops  
+
+---
+
+description: Allow read access for projects.
+context:
+  application: 'rundeck'
+for:
+  resource:
+    - allow: [read]
+  project:
+    - allow: [read]
+by:
+  group: [dev,ops,releng]

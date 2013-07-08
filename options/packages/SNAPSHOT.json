@@ -1,0 +1,6 @@
+
+[ 
+  {name:"app-SNAPSHOT", value:"app-SNAPSHOT.tgz"}, 
+  {name:"db-SNAPSHOT", value:"db-SNAPSHOT.tgz"}, 
+  {name:"web-SNAPSHOT", value:"web-SNAPSHOT.tgz"}, 
+]

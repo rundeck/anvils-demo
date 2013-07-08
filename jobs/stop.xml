@@ -1,0 +1,37 @@
+<joblist>   
+  <job> 
+   <name>stop</name>  
+   <description>stop the web servers</description>  
+   <loglevel>INFO</loglevel>  
+   <group>anvils/web</group>  
+   <context> 
+    <project>anvils</project>  
+    <options> 
+      <option name="method" enforcedvalues="true"
+       required="true" 
+       valuesUrl='http://localhost/anvils/options/stop-method.json'/> 
+       <option name="dir" enforcedvalues="true" required="true" 
+         valuesUrl='http://localhost/anvils/options/anvils-dir.json'/>               
+       </options> 
+     </context>  
+     <sequence threadcount="1" keepgoing="false" strategy="node-first"> 
+       <command> 
+         <scripturl>http://localhost/anvils/scripts/stop.sh</scripturl>           
+         <scriptargs>${option.dir} ${option.method}</scriptargs> 
+         <errorhandler keepgoingOnSuccess='true'>
+           <scriptfile>http://localhost/anvils/scripts/kill.sh</scriptfile>
+           <scriptargs>${option.dir}</scriptargs>              
+         </errorhandler>
+       </command> 
+     </sequence>  
+     <nodefilters excludeprecedence="true"> 
+       <include> 
+        <tags>www</tags> 
+      </include> 
+    </nodefilters>  
+    <dispatch> 
+     <threadcount>1</threadcount>  
+     <keepgoing>true</keepgoing> 
+   </dispatch> 
+ </job>
+</joblist>

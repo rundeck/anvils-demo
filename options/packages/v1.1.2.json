@@ -1,0 +1,6 @@
+
+[ 
+  {name:"app-1.1.2", value:"app-1.1.2.tgz"}, 
+  {name:"db-1.1.2", value:"db-1.1.2.tgz"}, 
+  {name:"web-1.1.2", value:"web-1.1.2.tgz"}, 
+]

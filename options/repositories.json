@@ -1,0 +1,5 @@
+[ 
+  {name:"ci", value:"ci"}, 
+  {name:"stable", value:"stable"}, 
+  {name:"release", value:"release"}, 
+]

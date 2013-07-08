@@ -1,0 +1,38 @@
+<joblist>   
+ <job> 
+   <name>Restart</name>  
+   <description>restart the web servers</description>  
+   <loglevel>INFO</loglevel>  
+   <group>anvils/web</group>  
+   <context> 
+     <project>anvils</project>  
+     <options> 
+       <option name="method" enforcedvalues="true" required="false" 
+        valuesUrl='http://localhost/anvils/options/stop-method.json'/> 
+        <option name="dir" enforcedvalues="true" required="true" 
+         valuesUrl='http://localhost/anvils/options/anvils-dir.json'/> 
+       </options> 
+     </context>  
+     <sequence threadcount="1" keepgoing="false" strategy="node-first"> 
+      <command> 
+        <jobref name="stop" group="anvils/web">
+          <arg line="-dir ${option.dir} -method ${option.method}"/> 
+        </jobref> 
+      </command>  
+      <command> 
+        <jobref name="start" group="anvils/web">
+          <arg line="-dir ${option.dir}"/>           
+        </jobref> 
+      </command> 
+    </sequence>
+     <nodefilters excludeprecedence="true"> 
+       <include> 
+        <tags>www</tags> 
+      </include> 
+    </nodefilters>  
+    <dispatch> 
+     <threadcount>1</threadcount>  
+     <keepgoing>true</keepgoing> 
+   </dispatch>     
+  </job>   
+</joblist>
