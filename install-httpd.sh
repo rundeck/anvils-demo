@@ -31,9 +31,9 @@ chown apache:apache /var/lock/apache
 cat > /etc/httpd/conf.d/webdav.conf<<EOF
 DavLockDB /var/lock/apache/DavLock
 
-Alias /rundeck "/var/www/html/rundeck"
+Alias /rundeck "/var/www/html"
 
-<Directory /var/www/html/rundeck>
+<Directory /var/www/html>
     Dav On
     Order Allow,Deny
     Allow from all
