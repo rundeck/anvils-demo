@@ -53,14 +53,14 @@ for:
   resource:
     - allow: read
   job:
-    - match:
+    - equals:
         group: 'anvils'
         name: 'Promote'
       allow: [run,read]
   node:
     - allow: [read,run] # allow read/run for all nodes
 by:
-  group: ops  
+  group: releng
 
 ---
 
