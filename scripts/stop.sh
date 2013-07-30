@@ -14,6 +14,7 @@ METHOD=$2
 if [[ -f $DIR/pid ]]
 then	
 	pid=$(cat $DIR/pid)	
+	# kill $pid ;
 	rm -f $DIR/pid
 	echo "Web stopped (pid=${pid}) on ${RD_NODE_NAME:-} with method: $METHOD"
 fi

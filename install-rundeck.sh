@@ -3,7 +3,16 @@
 set -e 
 set -u
 
+# Process command line arguments.
+
+if [ $# -lt 2 ]
+then
+    echo >&2 "usage: $0 rdip rundeck_yum_repo"
+    exit 1
+fi
+
 RDIP=$1
+RUNDECK_REPO_URL=$2
 
 # Software install
 # ----------------
@@ -25,10 +34,19 @@ yum -y install java-1.6.0
 #
 # Rundeck 
 #
-if ! rpm -q rundeck-repo
+if [ -n "$RUNDECK_REPO_URL" ]
 then
-    rpm -Uvh http://repo.rundeck.org/latest.rpm 
+    curl -# --fail -L -o /etc/yum.repos.d/rundeck.repo "$RUNDECK_REPO_URL" || {
+        echo "failed downloading rundeck.repo config"
+        exit 2
+    }
+else
+    if ! rpm -q rundeck-repo
+    then
+        rpm -Uvh http://repo.rundeck.org/latest.rpm 
+    fi
 fi
+
 yum -y install rundeck
 
 # Reset the home directory permission as it comes group writeable.

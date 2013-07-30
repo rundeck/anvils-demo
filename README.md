@@ -1,31 +1,35 @@
-This is a single-machine vagrant configuration that installs
-and configures a rundeck instance and an Apache httpd instance.
-
-The httpd instance is used as a simple file web-based
-repository from which scripts and job options are shared to Rundeck. 
-
-The examples shown here model a hypothetical application called
+The example shown here models a hypothetical application called
 "Anvils", a simple web-based service using several functional roles
 like web, app and database services.
 
-The purpose of the examples is to show how several teams can
+The purpose of this example is to show how dev and ops teams can
 collaborate around how to restart the web tier, manage software
 promotions, run status health checks and a nightly batch job.
 
+This is a single-machine vagrant configuration that installs
+and configures a rundeck instance and an Apache httpd instance.
+
+The httpd instance is used as a simple web-based file
+repository from which scripts and job options are shared to Rundeck. 
+
+
+To run this example, you will bring up a VM using vagrant, log in 
+to Rundeck and perform certain jobs.
+
 ## Vagrant configuration
 
-The vagrant configuration defines the following virtual machines:
+This vagrant configuration defines one virtual machine:
 
-* **rundeck**: The user-facing "primary" rundeck.
+* **rundeck**: The rundeck instance used by all the teams.
 
-The machine uses a centos base box and installs software via yum/rpm.
+The rundeck VM runs a centos base box and installs software via yum/rpm.
 
-If you are curious how the rundeck and apache instances are set up see
+If you are curious how the rundeck and apache instances are installed see
 the vagrant provisioning scripts:
 
 * [install-rundeck.sh](https://github.com/rundeck/anvils-demo/blob/master/install-rundeck.sh): Installs java, rundeck and the hipchat notification plugin
 along with some utility packages like xmlstarlet.
-* [add-project.sh](https://github.com/rundeck/anvils-demo/blob/master/add-project.sh): Creates the "anvils" rundeck project and configures the user accounts,
+* [add-project.sh](https://github.com/rundeck/anvils-demo/blob/master/add-project.sh): Creates the "anvils" rundeck project and installs the jobs, configures the user accounts,
 nodes, ssh access, and copies scripts to the apache document root.
 * [install-httpd.sh](https://github.com/rundeck/anvils-demo/blob/master/install-httpd.sh): Installs Apache httpd, creates the document root for scripts and options and enables the mod_dav plugin to provide future "PUT"-based access to publish files.
 
@@ -82,7 +86,8 @@ should also be configured to send job status there.
 ## Logins and access control
 
 The rundeck instance is configured with several logins (user/password),
-each with specialized roles.
+each with specialized roles. Roles are allowed to see and perform only
+the jobs they are granted access to use.
 
 * admin/admin: The "admin" login has full privileges and create, edit, run jobs and ad-hoc commands.
 * ops/ops: The "ops" login is able to run jobs but not create or modify them.
@@ -97,11 +102,12 @@ The [anvils.aclpolicy](https://github.com/rundeck/anvils-demo/blob/master/anvils
 file specifies what actions users like the "ops" and "dev" can do. All groups can 
 view information about the nodes, jobs, and history so everybody has basic visibility.
 
-
+When logging into each of the users, notice how the job listing and job toolbar reflect
+the permissions of each user.
 
 ## Nodes
 
-The anvils project has several nodes defined. Go to the "Run" page and press the button
+The anvils project contains several nodes. Go to the "Run" page and press the button
 "Show all nodes". You will see the following nodes:
 
 * app_1
@@ -110,16 +116,22 @@ The anvils project has several nodes defined. Go to the "Run" page and press the
 * www_1
 * www_2
 
-The nodes listing includes a column called "Tags" displaying the user defined
-tags for each of the nodes. For example, all of the nodes are tagged "anvils"
-but there are also functionally named tags like "www" and "app" and "db".
-Clicking on any of the tag names filters the nodes for ones that are tagged with that name.
+Each of the nodes play a role in running the Anvils application.
+
+The Tags columns shows how each node is tagged with user defined
+labels. You can use tags for grouping or classification.
+For example, all of the nodes tagged "anvils" represent the
+anvils hosts.
+There are also tags that describe functionally like "www" and "app" and "db".
+Clicking on any of the tag names filters the nodes for ones that are tagged with that label.
 Clicking on the "anvils" tag will list all the anvils nodes again.
+
 
 Pressing the the node name reveals the node's metadata. A node can have any number
 of user defined attributes but some "standard" info is included like OS Family,Name,Architecture.
-You will also see some metadata specific to Anvils is also shown like "anvils-customer" and "anvils-location". This node metadata is accessible to any command or rundeck job to make
-them environment independent. Here's the metadata for the "www_1.anvils.com" node:
+You will also see some metadata specific to Anvils is also shown like "anvils-customer" and "anvils-location". Rundeck node metadata is accessible to any command, script or 
+rundeck job to help you keep them environment independent. 
+Here's the metadata for the "www_1.anvils.com" node:
 
     www_1.anvils.com:
         osFamily: unix
@@ -219,20 +231,21 @@ This job is defined to execute on nodes tagged "www".
 
 #### nightly_catalog_rebuild
 
-The nightly_catalog_rebuild job is provided by develoeprs to run automatically every night.
+The nightly_catalog_rebuild job is provided by developers to run automatically every night.
 
 The nightly_catalog_rebuild job is meant to run at 00:00:00 (midnight) every day.
 The [schedule](http://rundeck.org/docs/manpages/man5/job-v20.html#schedule) element in the job definition specifies this in a crontab like format.
 Also, the [notification](http://rundeck.org/docs/manpages/man5/job-v20.html#notification) element is used to send emails upon success and failure to the 
 "bizops@anvils.com" mail group.
 
-This script for this job runs on the database server tagged "db". The script
+The script for this job runs on the database server tagged "db". The script
 is written to use 
 [context variables](http://rundeck.org/docs/manual/job-workflows.html#context-variables)
-which exposes metadata from the resource model. Attributes about the node
+which exposes metadata about the job and node information from the resource model. 
+Attributes about the node
 are exposed as environment variables to the script. For example, the db
 node has two custom attributes: anvils-customer and anvils-location. The
-values of these metadata attributes can be read as environment variables:
+values of these metadata attributes can be read by the script as environment variables:
 `RD_NODE_ANVILS_CUSTOMER` and `RD_NODE_ANVILS_LOCATION`.
 
 * [job source](https://github.com/rundeck/anvils-demo/blob/master/jobs/nightly_catalog_rebuild.xml)
