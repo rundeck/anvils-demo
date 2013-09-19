@@ -13,4 +13,4 @@ DIR=$1
 mkdir -p $DIR
 echo $$ > $DIR/pid
 
-echo "Web started (pid=$$) on ${RD_NODE_NAME:-} "
+echo "- Web started (pid=$$) on ${RD_NODE_NAME:-} "
