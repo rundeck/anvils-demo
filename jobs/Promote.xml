@@ -18,7 +18,7 @@ echo "## Promote $REPOSITORY/$RELEASE..."
 
 PACKAGES=( ${PACKAGELIST//,/ } )
 echo "number  packages: ${#PACKAGES[*]}"
-
+echo
 for package in ${PACKAGES[*]:-}
 do
    echo "- $REPOSITORY/$RELEASE/$package"
