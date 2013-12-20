@@ -17,7 +17,7 @@ if [[ -z "$PID" ]]
 then
 	echo "DOWN"; exit 1;
 else 
-	echo "- RUNNING (pid=$PID) on ${RD_NODE_NAME:-}"
+	echo "- RUNNING (pid=$PID)"
 fi	
 
 exit $?
