@@ -50,7 +50,7 @@ su - rundeck -c "rd-project -a create -p $PROJECT"
 # Run simple commands to double check.
 su - rundeck -c "dispatch -p $PROJECT"
 # Run an adhoc command.
-su - rundeck -c "dispatch -p $PROJECT -f -- whoami"
+su - rundeck -c "dispatch -p $PROJECT -f '*' whoami"
 
 # Add resources
 # --------------
