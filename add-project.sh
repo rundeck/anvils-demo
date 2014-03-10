@@ -50,7 +50,7 @@ su - rundeck -c "rd-project -a create -p $PROJECT"
 # Run simple commands to double check.
 su - rundeck -c "dispatch -p $PROJECT"
 # Run an adhoc command.
-su - rundeck -c "dispatch -p $PROJECT -f -- whoami"
+su - rundeck -c "dispatch -p $PROJECT -f '*' whoami"
 
 # Add resources
 # --------------
@@ -64,21 +64,7 @@ do
 	then
 	ROLE=${NAME%%_*}
     echo "Adding node: ${NAME}."
-    	xmlstarlet ed -P -S -L -s /project -t elem -n NodeTMP -v "" \
-    	    -i //NodeTMP -t attr -n "name" -v "${NAME}.anvils.com" \
-        	-i //NodeTMP -t attr -n "description" -v "A $ROLE server node." \
-	        -i //NodeTMP -t attr -n "tags" -v "${ROLE},anvils" \
-    	    -i //NodeTMP -t attr -n "hostname" -v "localhost" \
-        	-i //NodeTMP -t attr -n "username" -v "${NAME}" \
-        	-i //NodeTMP -t attr -n "osFamily" -v "unix" \
-        	-i //NodeTMP -t attr -n "osName" -v "Linux" \
-        	-i //NodeTMP -t attr -n "osArch" -v "x86_64" \
-        	-i //NodeTMP -t attr -n "osVersion" -v "2.6.32-279.el6.x86_64" \
-        	-i //NodeTMP -t attr -n "anvils-location" -v "US-East" \
-        	-i //NodeTMP -t attr -n "anvils-customer" -v "acme.com" \
-	        -i //NodeTMP -t attr -n "ssh-keypath" -v "/var/lib/rundeck/.ssh/id_rsa" \
-    	    -r //NodeTMP -v node \
-        	$RESOURCES
+    	xmlstarlet ed -P -S -L -s /project -t elem -n NodeTMP -v "" -i //NodeTMP -t attr -n "name" -v "${NAME}.anvils.com" -i //NodeTMP -t attr -n "description" -v "A $ROLE server node." -i //NodeTMP -t attr -n "tags" -v "${ROLE},anvils" -i //NodeTMP -t attr -n "hostname" -v "localhost" -i //NodeTMP -t attr -n "username" -v "${NAME}" -i //NodeTMP -t attr -n "osFamily" -v "unix" -i //NodeTMP -t attr -n "osName" -v "Linux" -i //NodeTMP -t attr -n "osArch" -v "x86_64" -i //NodeTMP -t attr -n "osVersion" -v "2.6.32-279.el6.x86_64" -i //NodeTMP -t attr -n "anvils-location" -v "US-East" -i //NodeTMP -t attr -n "anvils-customer" -v "acme.com" -i //NodeTMP -t attr -n "ssh-keypath" -v "/var/lib/rundeck/.ssh/id_rsa" -r //NodeTMP -v node $RESOURCES
 	else
     	echo "Node $NAME already defined in resources.xml"
 	fi
