@@ -13,7 +13,7 @@ PROJECT=$1
 
 # Fictitious hosts that mascarade as local nodes
 
-USERS=( www_{1,2} app_{1,2} db_1 )
+USERS=( www{1,2} app{1,2} db1 )
 
 # Add a user account for each role/user
 # -------------------------------------
@@ -56,19 +56,41 @@ su - rundeck -c "dispatch -p $PROJECT -f '*' whoami"
 # --------------
 NODES=( ${USERS[*]} )
 
-RESOURCES=/var/rundeck/projects/${PROJECT}/etc/resources.xml
+RESOURCES_D=/var/rundeck/projects/${PROJECT}/etc/resources.d
+mkdir -p $RESOURCES_D
+# Configure directory resource source
+cat >> /var/rundeck/projects/$PROJECT/etc/project.properties <<EOF
+#+
+resources.source.2.type=directory
+resources.source.2.config.directory=$RESOURCES_D
+#-
+EOF
 
+# Generate resource model for each node.
 for NAME in ${NODES[*]}
 do
-	if ! xmlstarlet sel -t -m "/project/node[@name='${NAME}']" -v @name $RESOURCES
-	then
-	ROLE=${NAME%%_*}
-    echo "Adding node: ${NAME}."
-    	xmlstarlet ed -P -S -L -s /project -t elem -n NodeTMP -v "" -i //NodeTMP -t attr -n "name" -v "${NAME}.anvils.com" -i //NodeTMP -t attr -n "description" -v "A $ROLE server node." -i //NodeTMP -t attr -n "tags" -v "${ROLE},anvils" -i //NodeTMP -t attr -n "hostname" -v "localhost" -i //NodeTMP -t attr -n "username" -v "${NAME}" -i //NodeTMP -t attr -n "osFamily" -v "unix" -i //NodeTMP -t attr -n "osName" -v "Linux" -i //NodeTMP -t attr -n "osArch" -v "x86_64" -i //NodeTMP -t attr -n "osVersion" -v "2.6.32-279.el6.x86_64" -i //NodeTMP -t attr -n "anvils-location" -v "US-East" -i //NodeTMP -t attr -n "anvils-customer" -v "acme.com" -i //NodeTMP -t attr -n "ssh-keypath" -v "/var/lib/rundeck/.ssh/id_rsa" -r //NodeTMP -v node $RESOURCES
-	else
-    	echo "Node $NAME already defined in resources.xml"
-	fi
+	ROLE= INDEX=
+    [[ $NAME =~ ([^0-9]+)([0-9]+) ]] && { ROLE=${BASH_REMATCH[1]} INDEX=${BASH_REMATCH[2]} ; }
+    cat > $RESOURCES_D/$NAME.xml <<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project>    
+  <node name="${NAME}.anvils.com" hostname="localhost" username="${NAME}"
+      description="A $ROLE server node." tags="${ROLE},anvils"
+      osFamily="unix" osName="$(uname -s)" osArch="$(uname -m)" osVersion="$(uname -r)"
+      ssh-keypath="/var/lib/rundeck/.ssh/id_rsa"
+      >
+    <!-- anvils specific attributes -->
+    <attribute name="anvils:server-pool" value="$ROLE"/>
+    <attribute name="anvils:server-pool-id" value="$INDEX"/>
+    <attribute name="anvils:location" value="US-East"/>
+    <attribute name="anvils:customer" value="acme.com"/>
+  </node>
+</project>
+EOF
+    echo "Added node: ${NAME} [role: $ROLE]."
 done
+chown -R rundeck:rundeck $RESOURCES_D
 
 # Add jobs, scripts and options
 # -----------------------------
@@ -79,7 +101,7 @@ cp -r /vagrant/scripts/* /var/www/html/$PROJECT/scripts/
 cp -r /vagrant/options/* /var/www/html/$PROJECT/options/
 chown -R rundeck:apache /var/www/html/$PROJECT/{scripts,options,jobs}
 
-# Add jobs
+# Load the jobs
 for job in /var/www/html/$PROJECT/jobs/*.xml
 do
 	su - rundeck -c "rd-jobs load -f $job"
