@@ -65,7 +65,10 @@ chown -R rundeck:apache /var/www/html/anvils
 # start the httpd service
 service httpd start
 
+# Ensure httpd is started on reboot of machine
+chkconfig httpd on
 
 
 # turn off fire wall
 service iptables stop
+chkconfig iptables off
