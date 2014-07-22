@@ -5,10 +5,10 @@ set -u
 
 # Process command line arguments.
 
-if [ $# -lt 2 ]
+if [[ $# -lt 2 ]]
 then
     echo >&2 "usage: $0 rdip rundeck_yum_repo"
-    exit 1
+    exit 2
 fi
 
 RDIP=$1

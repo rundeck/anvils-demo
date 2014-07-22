@@ -1,7 +1,7 @@
 #!/bin/bash
 
-set -e
-set -u
+set -eu
+
 
 # Software install
 # ----------------
