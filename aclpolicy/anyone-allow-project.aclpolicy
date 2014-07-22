@@ -1,0 +1,8 @@
+description: 'Given user in group ".*" and for project, then allow action [read].'
+context:
+  application: 'rundeck'
+for:
+  project:
+    - allow: [read]
+by:
+  group: '.*'

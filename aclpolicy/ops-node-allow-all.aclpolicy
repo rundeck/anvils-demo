@@ -1,0 +1,8 @@
+description: 'Given user in group "ops" and for nodes, then allow action [read,run].'
+context:
+  project: '.*'
+for:
+  node:
+    - allow: [read,run] # allow read/run for all nodes
+by:
+  group: ops

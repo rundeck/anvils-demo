@@ -1,0 +1,11 @@
+description: 'Given user in group "dev" and for job matching ".*/Restart", then allow [read].'
+context:
+  project: '.*'
+for:
+  job:
+    - match:
+        group: '.*'
+        name: 'Restart'
+      allow: [read]
+by:
+  group: dev

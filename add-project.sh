@@ -1,10 +1,9 @@
 #!/usr/bin/env bash
 
-set -e
-set -u
+set -eu
 
 
-if [ $# -ne 1 ]
+if [[ $# -ne 1 ]]
 then
     echo >&2 "usage: add-project project"
     exit 1
@@ -43,28 +42,24 @@ fi
 
 # Create an example project
 # --------------------------
+
 echo Creating project $PROJECT...
 
-su - rundeck -c "rd-project -a create -p $PROJECT"
+# Configure directory resource source
+RESOURCES_D=/var/rundeck/projects/${PROJECT}/etc/resources.d
+mkdir -p $RESOURCES_D
+chown -R rundeck:rundeck /var/rundeck
 
-# Run simple commands to double check.
+su - rundeck -c "rd-project -a create -p $PROJECT --resources.source.2.type=directory --resources.source.2.config.directory=$RESOURCES_D"
+
+# Run simple commands for sanity checking.
 su - rundeck -c "dispatch -p $PROJECT"
 # Run an adhoc command.
 su - rundeck -c "dispatch -p $PROJECT -f '*' whoami"
 
-# Add resources
+# Add node resources
 # --------------
 NODES=( ${USERS[*]} )
-
-RESOURCES_D=/var/rundeck/projects/${PROJECT}/etc/resources.d
-mkdir -p $RESOURCES_D
-# Configure directory resource source
-cat >> /var/rundeck/projects/$PROJECT/etc/project.properties <<EOF
-#+
-resources.source.2.type=directory
-resources.source.2.config.directory=$RESOURCES_D
-#-
-EOF
 
 # Generate resource model for each node.
 for NAME in ${NODES[*]}
@@ -90,7 +85,7 @@ do
 EOF
     echo "Added node: ${NAME} [role: $ROLE]."
 done
-chown -R rundeck:rundeck $RESOURCES_D
+chown rundeck:rundeck $RESOURCES_D/*.xml
 
 # Add jobs, scripts and options
 # -----------------------------

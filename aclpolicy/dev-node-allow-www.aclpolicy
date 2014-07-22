@@ -1,0 +1,10 @@
+description: 'Given user in group "dev" and for node matching "tags: www", then allow action [read,run].'
+context:
+  project: '.*'
+for:
+  node:
+    - contains:
+        tags: 'www'
+      allow: [run,read]
+by:
+  group: 'dev'

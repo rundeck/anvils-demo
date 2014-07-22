@@ -1,0 +1,8 @@
+description: 'Given user in group ".*" and for resource, then allow action read.'
+context:
+  project: '.*'
+for:
+  node:
+    - allow: [read]
+by:
+  group: '.*'
