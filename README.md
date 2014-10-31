@@ -2,7 +2,7 @@ The example shown here models a hypothetical application called
 "Anvils", a simple web-based service built on several functional roles
 like web, app and database services.
 
-The purpose of this example is to show how dev and ops teams can
+This example shows how dev and ops teams can
 collaborate around how to restart the web tier, manage software
 promotions, run status health checks and a nightly batch job.
 
@@ -16,24 +16,8 @@ repository from which scripts and job options are shared to Rundeck.
 To run this example, you will bring up a VM using vagrant, log in 
 to Rundeck and perform certain jobs.
 
-## Vagrant configuration
 
-This vagrant configuration defines one virtual machine:
-
-* **rundeck**: The rundeck instance used by all the teams.
-
-The rundeck VM runs a centos base box and installs software via yum/rpm.
-
-If you are curious how the rundeck and apache instances are installed see
-the vagrant provisioning scripts:
-
-* [install-rundeck.sh](https://github.com/rundeck/anvils-demo/blob/master/install-rundeck.sh): Installs java, rundeck and the hipchat notification plugin
-along with some utility packages like xmlstarlet.
-* [add-project.sh](https://github.com/rundeck/anvils-demo/blob/master/add-project.sh): Creates the "anvils" rundeck project and installs the jobs, configures the user accounts,
-nodes, ssh access, and copies scripts to the apache document root.
-* [install-httpd.sh](https://github.com/rundeck/anvils-demo/blob/master/install-httpd.sh): Installs Apache httpd, creates the document root for scripts and options and enables the mod_dav plugin to provide future "PUT"-based access to publish files.
-
-### Requirements
+## System Requirements
 
 * Internet access to download packages from public repositories.
 * [Vagrant 1.2.2](http://downloads.vagrantup.com)
@@ -49,10 +33,9 @@ You can access the rundeck and httpd instances from your host machine using the 
 * rundeck: http://192.168.50.2:4440
 * httpd: http://192.168.50.2/anvils
 
-## Demo stories
+## Demo story
 
-Every demo needs a story. There are 3 stories in this demo. The unifying theme to all of them is "low MTTB" (with Rundeck you have the lowest "Mean Time to Button") for self service
-and increasing the level of visibility for everybody.
+Every demo needs a story. There are 3 stories in this demo. The unifying theme is giving visibility and control to everyone in the Anvils support process.
 
 ### Story #1: Handing over the app restart procedure
 
@@ -63,7 +46,7 @@ When an Anvils web server acts up under load, it needs to be restarted. At this 
 So the team turns to Rundeck. The Dev provided scripts are plugged into Rundeck jobs that can be safely and securely called by the NOC (and both receive notifications and know how to follow the output). Once the devs are happy with how the procedure works, they can handoff a Restart button to the NOC Team which allows ops a safe and secure way to call the required restart method themselves. A "Status" job is runnable by both Developers and NOC teams to check on the health of the web servers at any time.
 
 
-### Story #2: Promoting software to operations
+### Story #2: Promoting releases to operations
 
 * Collaborators: Release Engineering
 
@@ -72,7 +55,7 @@ The Release Engineering team needs a method to promote new versions of the Anvil
 So the team turns to Rundeck. The promotion scripts that pull from one repository and upload to another are plugged into Rundeck jobs. Using Rundeck option providers, the jobs are able to have drop down menus that are populated with the correct repositories and their available artifacts. 
 
 
-### Story #3: Routine catalog rebuilds
+### Story #3: Nightly catalog rebuilds
 
 * Collaborators: Developers, Operations
 
@@ -116,17 +99,15 @@ The Rundeck Keystore stores all the SSH keys used for remote access to the Anvil
 Private, Public and password data can be stored in the Keystore. 
 The keys can be organized in anyway but the team decides to create a convention that will let them group keys by the  organization name, application and the identity:
 
-    {organization}/{application}/{identity}
+    {organization}/{application}/{identity}/{keyfile}
 
 After the keys are uploaded, the rundeck instance has these keys loaded:
 
 * /acme/anvils/app1/id_rsa
 * /acme/anvils/app2/id_rsa
-* /acme/anvils/app2/id_rsa
 * /acme/anvils/db1/id_rsa
-* /acme/anvils/db1/id_rsa
-* /acme/anvils/www2/id_rsa
 * /acme/anvils/www1/id_rsa
+* /acme/anvils/www2/id_rsa
 
 Each node is configured to use the appropriate key
 via the `ssh-key-storage-path` node attribute. 
@@ -200,10 +181,11 @@ this node info from an external source like your CMDB, Chef, Puppet, AWS, Rights
 #### Customizing local command execution
 
 The local command execution step defaults to "sh" (the Bourne shell).
-It's the equivalent of running `sh -c "command-string"`.
-The Anvils team prefers to use bash for commands executed on the Rundeck server.
+It's the equivalent of running `sh -c "command-string"` as the rundeck user on the rundeck host.
+The Anvils team prefers to use bash instead of sh for any commands executed on the Rundeck server.
 
-With three node attributes, the rundeck server is configured to use bash. The 
+The rundeck server like the hosts it manages, is described in a resource model as a "node".
+Using three node attributes, the rundeck server is configured to use bash. The 
 node definition for the server is found in /var/rundeck/projects/anvils/etc/resources.xml.
 
     <project>    
@@ -222,7 +204,7 @@ node definition for the server is found in /var/rundeck/projects/anvils/etc/reso
 * script-exec: Specifies the system command to run. `${exec.command}` is the command that the workflow/user has specified
 * script-exec-shell: Specifies the shell to use to interpret the command, e.g. "bash -c", "bash -r"
 
-See the user guide about [custom command and script execution with the script-plugin](http://rundeck.org/docs/plugins-user-guide/custom-command-and-script-execution-with-the-script-plugin.html)
+See the user guide about [custom command and script execution with the script-plugin](http://rundeck.org/docs/plugins-user-guide/custom-command-and-script-execution-with-the-script-plugin.html).
 
 ### Jobs
 
@@ -309,6 +291,23 @@ values of these metadata attributes can be read by the script as environment var
 `RD_NODE_ANVILS_CUSTOMER` and `RD_NODE_ANVILS_LOCATION`.
 
 * [job source](https://github.com/rundeck/anvils-demo/blob/master/jobs/nightly_catalog_rebuild.xml)
+
+## Vagrant configuration
+
+This vagrant configuration defines one virtual machine:
+
+* **rundeck**: The rundeck instance used by all the teams.
+
+The rundeck VM runs a centos base box and installs software via yum/rpm.
+
+If you are curious how the rundeck and apache instances are installed see
+the vagrant provisioning scripts:
+
+* [install-rundeck.sh](https://github.com/rundeck/anvils-demo/blob/master/install-rundeck.sh): Installs java, rundeck and the hipchat notification plugin
+along with some utility packages like xmlstarlet.
+* [add-project.sh](https://github.com/rundeck/anvils-demo/blob/master/add-project.sh): Creates the "anvils" rundeck project and installs the jobs, configures the user accounts,
+nodes, ssh access, and copies scripts to the apache document root.
+* [install-httpd.sh](https://github.com/rundeck/anvils-demo/blob/master/install-httpd.sh): Installs Apache httpd, creates the document root for scripts and options and enables the mod_dav plugin to provide future "PUT"-based access to publish files.
 
 ## Where to go from here
 
