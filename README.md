@@ -1,20 +1,10 @@
 The example shown here models a hypothetical application called
-"Anvils", a simple web-based service built on several functional roles
+"Anvils", a simple web service built over several functional roles
 like web, app and database services.
 
 This example shows how dev and ops teams can
 collaborate around how to restart the web tier, manage software
-promotions, run status health checks and a nightly batch job.
-
-This is a single-machine vagrant configuration that installs
-and configures a rundeck instance and an Apache httpd instance.
-
-The httpd instance is used as a simple web-based file
-repository from which scripts and job options are shared to Rundeck. 
-
-
-To run this example, you will bring up a VM using vagrant, log in 
-to Rundeck and perform certain jobs.
+promotions, run status health checks and a schedule a nightly batch job.
 
 
 ## System Requirements
@@ -23,8 +13,17 @@ to Rundeck and perform certain jobs.
 * [Vagrant 1.2.2](http://downloads.vagrantup.com)
 
 ### Demo VM Startup
+This is a single-machine vagrant configuration that installs
+and configures a rundeck instance and an Apache httpd instance.
 
-Start up the VM like so:
+The httpd instance is used as a simple web-based file
+repository from which scripts and job options are shared to Rundeck. 
+
+To run this example, you will bring up a VM using vagrant, log in 
+to Rundeck and perform certain jobs.
+
+
+Boot the VM like so:
 
     vagrant up rundeck
 
@@ -35,7 +34,7 @@ You can access the rundeck and httpd instances from your host machine using the 
 
 ## Demo story
 
-Every demo needs a story. There are 3 stories in this demo. The unifying theme is giving visibility and control to everyone in the Anvils support process.
+Every demo needs a story. There are 3 stories in this demo. The unifying theme is giving visibility and control to everyone in the Anvils support process. An important measure is the time it takes to provide the automated self service task, a low "Mean Time to Button" (MTTB).
 
 ### Story #1: Handing over the app restart procedure
 
