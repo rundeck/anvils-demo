@@ -11,7 +11,7 @@ set -eu
 
 if ! rpm -q epel-release
 then
-	rpm -Uvh http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
+	rpm -Uvh https://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
 fi	
 yum install -y httpd xmlstarlet
 

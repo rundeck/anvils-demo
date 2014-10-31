@@ -6,24 +6,24 @@
         <scriptargs>${option.repository} ${option.release} ${option.packages}</scriptargs>
         <script><![CDATA[#!/bin/bash
 set -eu
-[[ $# != 3 ]] && {
-  echo >&2 'usage: $0 repository release pkg1,pkg2,pkgN'
+(( $# != 3 )) && {
+  printf >&2 'usage: $0 repository release pkg1,...,pkgN\n'
   exit 2
 }
-REPOSITORY=$1 RELEASE=$2 PACKAGELIST=$3
+REPOSITORY=$1 RELEASE=$2 PACKAGES=$3
 
-echo "# PROMOTE"
-echo "## $REPOSITORY/$RELEASE"
-echo "## Promote $REPOSITORY/$RELEASE..."
+# Split the "packages" multi-value option using the comma delimiter
+IFS=,
+PACKAGELIST=(${PACKAGES})
 
-PACKAGES=( ${PACKAGELIST//,/ } )
-echo "number  packages: ${#PACKAGES[*]}"
-echo
-for package in ${PACKAGES[*]:-}
+printf "Promote packages from release: '$RELEASE', repository '$REPOSITORY':"
+printf "\n"
+for package in "${PACKAGELIST[@]:-}"
 do
-   echo "- $REPOSITORY/$RELEASE/$package"
+   printf -- "- %-10s pushed\n" $package
 done
 
+printf "Completed promoting ${#PACKAGELIST[*]} packages.\n"
 exit $?]]></script>
       </command>
     </sequence>

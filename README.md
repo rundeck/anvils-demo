@@ -1,5 +1,5 @@
 The example shown here models a hypothetical application called
-"Anvils", a simple web-based service using several functional roles
+"Anvils", a simple web-based service built on several functional roles
 like web, app and database services.
 
 The purpose of this example is to show how dev and ops teams can
@@ -38,7 +38,7 @@ nodes, ssh access, and copies scripts to the apache document root.
 * Internet access to download packages from public repositories.
 * [Vagrant 1.2.2](http://downloads.vagrantup.com)
 
-### Startup
+### Demo VM Startup
 
 Start up the VM like so:
 
@@ -49,32 +49,32 @@ You can access the rundeck and httpd instances from your host machine using the 
 * rundeck: http://192.168.50.2:4440
 * httpd: http://192.168.50.2/anvils
 
-## User stories
+## Demo stories
 
 Every demo needs a story. There are 3 stories in this demo. The unifying theme to all of them is "low MTTB" (with Rundeck you have the lowest "Mean Time to Button") for self service
 and increasing the level of visibility for everybody.
 
-### Story #1
+### Story #1: Handing over the app restart procedure
 
-* Actors: Developers, Release Engineering, Operations
+* Collaborators: Developers, Release Engineering, Operations
 
 When an Anvils web server acts up under load, it needs to be restarted. At this point, someone from the NOC Team calls the Release Engineering team to do the restart. But under load, the Anvils web servers don't always stop using the normal method. When this happens, the Devs need to get involved to run their special script to forcibly stop the web server processes. Not only is this an inefficient process, but due to compliance reasons, the ops team can't give shell login access to the Devs to view logs and check the web servers process status.
 
 So the team turns to Rundeck. The Dev provided scripts are plugged into Rundeck jobs that can be safely and securely called by the NOC (and both receive notifications and know how to follow the output). Once the devs are happy with how the procedure works, they can handoff a Restart button to the NOC Team which allows ops a safe and secure way to call the required restart method themselves. A "Status" job is runnable by both Developers and NOC teams to check on the health of the web servers at any time.
 
 
-### Story #2
+### Story #2: Promoting software to operations
 
-* Actors: Release Engineering
+* Collaborators: Release Engineering
 
 The Release Engineering team needs a method to promote new versions of the Anvils software to the artifact repositories used by Operations to do deployments. Because there are several upstream repositories (eg, CI, stable and release) containing any number of releases and associated package versions, the Job should contain smart menus to let users drill down to the package versions they want to promote. We want a mistake-proof method of executing the promotion, and we want it to be logged and visible to all in our organization. 
 
 So the team turns to Rundeck. The promotion scripts that pull from one repository and upload to another are plugged into Rundeck jobs. Using Rundeck option providers, the jobs are able to have drop down menus that are populated with the correct repositories and their available artifacts. 
 
 
-### Story #3
+### Story #3: Routine catalog rebuilds
 
-* Actors: Developers, Operations
+* Collaborators: Developers, Operations
 
 A nightly batch job needs to be run to rebuild catalog data. The developers have written a series of procedures to do the catalog rebuild and they need Operations to run them. The job needs to run at a regularly scheduled time and the right people need to be notified if there is a failure. This is a critical business process, so everyone in the organization needs a known place to look to see the status of this job.
 
@@ -83,7 +83,7 @@ So the team turns to Rundeck. The scripts are plugged into Rundeck jobs. The cat
 Also, because the ops team uses [HipChat](http://www.hipchat.com) for a shared running chat log, notifications
 should also be configured to send job status there.
 
-## Logins and access control
+## Controlling Access: Logins and access control policy
 
 The rundeck instance is configured with several logins (user/password),
 each with specialized roles. Roles are allowed to see and perform only
@@ -105,16 +105,43 @@ view information about the nodes, jobs, and history so everybody has basic visib
 When logging into each of the users, notice how the job listing and job toolbar reflect
 the permissions of each user.
 
-## Nodes
+
+
+
+## The Anvils Project
+
+### Key storage
+
+The Rundeck Keystore stores all the SSH keys used for remote access to the Anvils nodes.
+Private, Public and password data can be stored in the Keystore. 
+The keys can be organized in anyway but the team decides to create a convention that will let them group keys by the  organization name, application and the identity:
+
+    {organization}/{application}/{identity}
+
+After the keys are uploaded, the rundeck instance has these keys loaded:
+
+* /acme/anvils/app1/id_rsa
+* /acme/anvils/app2/id_rsa
+* /acme/anvils/app2/id_rsa
+* /acme/anvils/db1/id_rsa
+* /acme/anvils/db1/id_rsa
+* /acme/anvils/www2/id_rsa
+* /acme/anvils/www1/id_rsa
+
+Each node is configured to use the appropriate key
+via the `ssh-key-storage-path` node attribute. 
+
+
+### Nodes
 
 The anvils project contains several nodes. Go to the "Run" page and press the button
 "Show all nodes". You will see the following nodes:
 
-* app_1
-* app_2
-* db_1
-* www_1
-* www_2
+* app1
+* app2
+* db1
+* www1
+* www2
 
 Each of the nodes play a role in running the Anvils application.
 
@@ -131,38 +158,71 @@ Pressing the the node name reveals the node's metadata. A node can have any numb
 of user defined attributes but some "standard" info is included like OS Family,Name,Architecture.
 You will also see some metadata specific to Anvils is also shown like "anvils-customer" and "anvils-location". Rundeck node metadata is accessible to any command, script or 
 rundeck job to help you keep them environment independent. 
-Here's the metadata for the "www_1.anvils.com" node:
+Here's the metadata for the "www1.anvils.com" node:
 
-    www_1.anvils.com:
+    www1.anvils.com:
         osFamily: unix
         tags: anvils, www
-        username: www_1
+        username: www1
         osArch: x86_64
+        osName: Linux        
         osVersion: 2.6.32-279.el6.x86_64
         description: A www server node.
-        nodename: www_1.anvils.com
+        nodename: www1.anvils.com
         hostname: localhost
         anvils-location: US-East
         anvils-customer: acme.com
-        ssh-keypath: /var/lib/rundeck/.ssh/id_rsa
-        osName: Linux
+        ssh-key-storage-path: /keys/acme/anvils/www1/id_rsa
 
-### Making one node look like six
+
+Note the `ssh-key-storage-path` attribute specifying the path to the SSH key used by that node.
+
+#### Making one node look like six
 
 Since this is a single-machine Vagrant instance,
-a little bit of cleverness is used to make the single node look like it is actually six.
-Each node is is uniquely named (eg www_1.anvils.com) and given its own Linux system account (eg www_1). Each node shares the same hostname (eg localhost, the rundeck server). The Rundeck server
-ssh's to the appropriate node's username to perform any needed action by the rundeck Jobs.
-This is equivelent to saying `rundeck-server $ ssh www_1@localhost <command>`.
+a little bit of cleverness is used to make the single VM masquerade as six Nodes.
+To do this, each node is given its own Linux system account (eg www1, www2). 
+Each node uses the same hostname as the rundeck server(eg localhost). 
+The Rundeck server
+ssh's to the appropriate node's username to perform any needed actions.
+This is equivalent to invoking ssh via commandline: `$ ssh www1@localhost <command>`.
 
 While this example makes use of the bundled SSH support, Rundeck command dispatching is 
-completely pluggable and open ended to use your desired execution framework (eg, winrm, salt, mcollective, custom-xml-rpc, etc).
+completely pluggable and open ended to use your desired execution framework (eg, winrm, salt, mcollective, custom-xml-rpc, ansible, etc).
 
 You can retrieve the node info for a project using the Rundeck Web API.
 This URL lists the resources for anvils: 
 http://192.168.50.2:4440/api/5/project/anvils/resources .
+
 Of course, this is canned demo data and a real rundeck project generally gets
 this node info from an external source like your CMDB, Chef, Puppet, AWS, Rightscale etc.
+
+#### Customizing local command execution
+
+The local command execution step defaults to "sh" (the Bourne shell).
+It's the equivalent of running `sh -c "command-string"`.
+The Anvils team prefers to use bash for commands executed on the Rundeck server.
+
+With three node attributes, the rundeck server is configured to use bash. The 
+node definition for the server is found in /var/rundeck/projects/anvils/etc/resources.xml.
+
+    <project>    
+      <node name="rundeck.acme.com" hostname="rundeck.acme.com" username="rundeck"
+          description="Rundeck server node." tags=""
+          osFamily="unix" osName="Linux" osArch="x86_64" osVersion="2.6.32-279.el6.x86_64"
+          >
+        <!-- configure bash as the local node executor -->
+        <attribute name="local-node-executor" value="script-exec"/>
+        <attribute name="script-exec" value="${exec.command}"/>    
+        <attribute name="script-exec-shell" value="bash -c"/>
+      </node>
+    </project>
+
+* local-node-executor: Specifies provider to use for local command execution
+* script-exec: Specifies the system command to run. `${exec.command}` is the command that the workflow/user has specified
+* script-exec-shell: Specifies the shell to use to interpret the command, e.g. "bash -c", "bash -r"
+
+See the user guide about [custom command and script execution with the script-plugin](http://rundeck.org/docs/plugins-user-guide/custom-command-and-script-execution-with-the-script-plugin.html)
 
 ### Jobs
 

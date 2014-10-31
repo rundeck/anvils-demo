@@ -1,10 +1,9 @@
 #!/bin/bash
 #/ usage: start.sh ?dir?
 
-set -e
-set -u
+set -eu
 
-[[ $# != 1 ]] && {
+(( $# != 1 )) && {
 	grep '^#/ usage:' <"$0" | cut -c4- >&2
 	exit 2	
 }
