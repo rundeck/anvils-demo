@@ -85,8 +85,8 @@ curl -sfL -o /var/lib/rundeck/libext/jabber-notification-1.0.jar https://github.
 curl -sfL -o /var/lib/rundeck/libext/PagerDutyNotification.groovy https://raw.githubusercontent.com/rundeck-plugins/pagerduty-notification/master/src/PagerDutyNotification.groovy
 }
 # EC2
-[[ ! -f /var/lib/rundeck/libext/rundeck-ec2-nodes-plugin-1.4.jar ]] && {
-curl -sfL -o /var/lib/rundeck/libext/rundeck-ec2-nodes-plugin-1.4.jar https://github.com/rundeck-plugins/rundeck-ec2-nodes-plugin/releases/download/1.4/rundeck-ec2-nodes-plugin-1.4.jar
+[[ ! -f /var/lib/rundeck/libext/rundeck-ec2-nodes-plugin-1.5.jar ]] && {
+curl -sfL -o /var/lib/rundeck/libext/rundeck-ec2-nodes-plugin-1.5.jar https://github.com/rundeck-plugins/rundeck-ec2-nodes-plugin/releases/download/1.5/rundeck-ec2-nodes-plugin-1.5.jar
 }
 
 chown -R rundeck:rundeck /var/lib/rundeck/libext
