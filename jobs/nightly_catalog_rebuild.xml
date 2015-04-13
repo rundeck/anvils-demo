@@ -36,7 +36,7 @@ exit $?]]></script>
       <context>
         <project>anvils</project>
         <options>
-          <option required='true' name='catalog' enforcedvalues='true' values='partner,shipping-rates,inventory'>
+          <option required='true' name='catalog' enforcedvalues='true' value='partner' values='partner,shipping-rates,inventory'>
             <description>catalog name</description>
           </option>
         </options>
