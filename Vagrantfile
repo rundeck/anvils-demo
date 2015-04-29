@@ -2,8 +2,8 @@
 Vagrant.configure("2") do |config|
 	PROJECT="anvils"
 	RDIP="192.168.50.2"
-    #RUNDECK_YUM_REPO="https://bintray.com/rundeck/rundeck-rpm/rpm"
-    RUNDECK_YUM_REPO="https://bintray.com/rundeck/ci-staging-rpm/rpm"
+    RUNDECK_YUM_REPO="https://bintray.com/rundeck/rundeck-rpm/rpm"
+    #RUNDECK_YUM_REPO="https://bintray.com/rundeck/ci-staging-rpm/rpm"
 
 
 	config.vm.box = "centos-63-x64"
