@@ -6,8 +6,7 @@ Vagrant.configure("2") do |config|
     #RUNDECK_YUM_REPO="https://bintray.com/rundeck/ci-staging-rpm/rpm"
 
 
-	config.vm.box = "centos-63-x64"
-	config.vm.box_url = "http://puppet-vagrant-boxes.puppetlabs.com/centos-63-x64.box"
+	config.vm.box = "chef/centos-6.5"
 
 
 	config.vm.define :rundeck do |rundeck|
