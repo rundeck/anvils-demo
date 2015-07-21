@@ -1,0 +1,25 @@
+---
+for:
+  storage:
+  - allow: read
+    match:
+      name: id_rsa
+      path: 'keys/acme/anvils/.*/id_rsa'
+description: 'Allow to read ssh keys'
+context:
+  application: rundeck
+by:
+  group: [dev,releng,ops]
+
+---
+for:
+  storage:
+  - allow: read
+    match:
+      name: id_rsa
+      path: '/keys/acme/anvils/.*'
+description: 'Allow to read ssh keys'
+context:
+  application: rundeck
+by:
+  group: [dev,releng,ops]
