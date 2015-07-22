@@ -15,6 +15,6 @@ then
 	PID=$(< $DIR/pid)	
 	echo "kill $PID"
 	rm -f $DIR/pid
-	echo "- Web stopped (pid=${PID}) using method: $METHOD"
+	echo "- Web stopped (pid=${PID}) using method: $METHOD" | tee -a $DIR/log
 fi
 

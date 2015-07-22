@@ -12,4 +12,4 @@ DIR=$1
 mkdir -p $DIR
 echo $$ > $DIR/pid
 
-echo "- Web started (pid=$$)"
+echo "- Web started (pid=$$)" | tee -a $DIR/log

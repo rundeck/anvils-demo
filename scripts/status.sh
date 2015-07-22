@@ -16,7 +16,7 @@ if [[ -z "${PID:-}" ]]
 then
 	echo "DOWN"; exit 1;
 else 
-	echo "- RUNNING (pid=$PID)"
+	echo "RUNNING"
 fi	
 
 exit $?
