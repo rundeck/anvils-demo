@@ -1,35 +1,45 @@
-<joblist>   
- <job> 
-   <name>Status</name>  
-   <description>Check the status of anvils</description>  
-   <loglevel>INFO</loglevel>  
-   <multipleExecutions>true</multipleExecutions>     
-   <group>anvils</group>  
-   <context> 
-     <project>anvils</project>  
-     <options> 
-
-       <option name="dir" enforcedvalues="true" required="true" 
-         valuesUrl='http://localhost/anvils/options/anvils-dir.json'/> 
-       </options> 
-     </context>  
-     <sequence threadcount="1" keepgoing="true" strategy="node-first"> 
-       <command> 
+<joblist>
+  <job>
+    <id>b0661686-0535-417f-bd57-385131cf4dc3</id>
+    <loglevel>INFO</loglevel>
+    <multipleExecutions>true</multipleExecutions>
+    <sequence keepgoing='true' strategy='node-first'>
+      <command>
+        <description>Check pid</description>
+        <node-step-plugin type='file-util:contains'>
+          <configuration>
+            <entry key='file' value='${option.dir}/pid' />
+            <entry key='string' value='&apos;^[0-9]*$&apos;' />
+          </configuration>
+        </node-step-plugin>
+      </command>
+      <command>
         <scripturl>http://localhost/anvils/scripts/status.sh</scripturl>
-        <scriptargs>${option.dir}</scriptargs>    
         <errorhandler keepgoingOnSuccess='true'>
           <exec>echo "Continuing..."</exec>
-        </errorhandler>         
-      </command> 
+        </errorhandler>
+        <description>Process status</description>
+        <scriptargs>${option.dir}</scriptargs>
+      </command>
     </sequence>
-    <nodefilters excludeprecedence="true"> 
-      <include> 
-        <tags>www</tags> 
-      </include> 
-    </nodefilters>  
-    <dispatch> 
-     <threadcount>1</threadcount>  
-     <keepgoing>true</keepgoing> 
-   </dispatch> 
- </job>   
+    <description>Check the status of anvils</description>
+    <name>Status</name>
+    <context>
+      <project>anvils</project>
+      <options>
+        <option name='dir' valuesUrl='http://localhost/anvils/options/anvils-dir.json' enforcedvalues='true' required='true' />
+      </options>
+    </context>
+    <dispatch>
+      <threadcount>1</threadcount>
+      <keepgoing>true</keepgoing>
+      <excludePrecedence>true</excludePrecedence>
+      <rankOrder>ascending</rankOrder>
+    </dispatch>
+    <uuid>b0661686-0535-417f-bd57-385131cf4dc3</uuid>
+    <nodefilters>
+      <filter>tags: www</filter>
+    </nodefilters>
+    <group>anvils</group>
+  </job>
 </joblist>

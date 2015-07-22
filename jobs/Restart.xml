@@ -1,38 +1,60 @@
-<joblist>   
- <job> 
-   <name>Restart</name>  
-   <description>restart the web servers</description>  
-   <loglevel>INFO</loglevel>  
-   <group>anvils/web</group>  
-   <context> 
-     <project>anvils</project>  
-     <options> 
-       <option name="method" enforcedvalues="true" required="false" 
-        valuesUrl='http://localhost/anvils/options/stop-method.json'/> 
-        <option name="dir" enforcedvalues="true" required="true" 
-         valuesUrl='http://localhost/anvils/options/anvils-dir.json'/> 
-       </options> 
-     </context>  
-     <sequence threadcount="1" keepgoing="false" strategy="node-first"> 
-      <command> 
-        <jobref name="stop" group="anvils/web">
-          <arg line="-dir ${option.dir} -method ${option.method}"/> 
-        </jobref> 
-      </command>  
-      <command> 
-        <jobref name="start" group="anvils/web">
-          <arg line="-dir ${option.dir}"/>           
-        </jobref> 
-      </command> 
+<joblist>
+  <job>
+    <id>54fa59d2-ca81-476b-95b1-23ad67fc7be3</id>
+    <loglevel>INFO</loglevel>
+    <sequence keepgoing='false' strategy='node-first'>
+      <command>
+        <jobref name='stop' group='anvils/web'>
+          <arg line='-dir ${option.dir} -method ${option.method}' />
+        </jobref>
+        <description>Stop the service</description>
+      </command>
+      <command>
+        <description>Rotate the log</description>
+        <node-step-plugin type='file-util:rotate'>
+          <configuration>
+            <entry key='compress' value='gzip' />
+            <entry key='file' value='${option.dir}/log' />
+            <entry key='tstamp-format' value='+%Y%m%d' />
+          </configuration>
+        </node-step-plugin>
+      </command>
+      <command>
+        <jobref name='start' group='anvils/web'>
+          <arg line='-dir ${option.dir}' />
+        </jobref>
+        <description>Start the service</description>
+      </command>
+      <command>
+        <description>Check the pid</description>
+        <node-step-plugin type='waitfor:file-exists'>
+          <configuration>
+            <entry key='file' value='${option.dir}/pid' />
+            <entry key='interval' value='1' />
+            <entry key='maxtry' value='10' />
+          </configuration>
+        </node-step-plugin>
+      </command>
     </sequence>
-     <nodefilters excludeprecedence="true"> 
-       <include> 
-        <tags>www</tags> 
-      </include> 
-    </nodefilters>  
-    <dispatch> 
-     <threadcount>1</threadcount>  
-     <keepgoing>true</keepgoing> 
-   </dispatch>     
-  </job>   
+    <description>restart the web servers</description>
+    <name>Restart</name>
+    <context>
+      <project>anvils</project>
+      <options>
+        <option name='dir' valuesUrl='http://localhost/anvils/options/anvils-dir.json' enforcedvalues='true' required='true' />
+        <option name='method' valuesUrl='http://localhost/anvils/options/stop-method.json' enforcedvalues='true' />
+      </options>
+    </context>
+    <dispatch>
+      <threadcount>2</threadcount>
+      <keepgoing>true</keepgoing>
+      <excludePrecedence>true</excludePrecedence>
+      <rankOrder>ascending</rankOrder>
+    </dispatch>
+    <uuid>54fa59d2-ca81-476b-95b1-23ad67fc7be3</uuid>
+    <nodefilters>
+      <filter>tags: www</filter>
+    </nodefilters>
+    <group>anvils/web</group>
+  </job>
 </joblist>
