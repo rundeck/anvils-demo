@@ -89,6 +89,12 @@ curl -sfL -o /var/lib/rundeck/libext/PagerDutyNotification.groovy https://raw.gi
 curl -sfL -o /var/lib/rundeck/libext/rundeck-ec2-nodes-plugin-1.5.jar https://github.com/rundeck-plugins/rundeck-ec2-nodes-plugin/releases/download/1.5/rundeck-ec2-nodes-plugin-1.5.jar
 }
 
+# file-util
+curl -sfL -o /var/lib/rundeck/libext/file-util.zip https://bintray.com/artifact/download/rundeck-plugins/rerun-remote-node-steps/file-util/1.0.0/file-util.zip
+
+# waitfor
+curl -sfL -o /var/lib/rundeck/libext/waitfor.zip https://bintray.com/artifact/download/rundeck-plugins/rerun-remote-node-steps/waitfor/1.1.0/waitfor.zip
+
 chown -R rundeck:rundeck /var/lib/rundeck/libext
 
 # Configure the system
