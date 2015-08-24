@@ -143,6 +143,7 @@ cp -r /vagrant/jobs/*    /var/www/html/$PROJECT/jobs/
 cp -r /vagrant/scripts/* /var/www/html/$PROJECT/scripts/
 cp -r /vagrant/options/* /var/www/html/$PROJECT/options/
 chown -R apache:rundeck /var/www/html/$PROJECT/{scripts,options,jobs}
+chmod 640 /var/www/html/$PROJECT/jobs/*
 
 # Load the jobs
 for job in /var/www/html/$PROJECT/jobs/*.xml
