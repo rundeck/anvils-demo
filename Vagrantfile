@@ -6,7 +6,7 @@ Vagrant.configure("2") do |config|
     #RUNDECK_YUM_REPO="https://bintray.com/rundeck/ci-staging-rpm/rpm"
 
 
-	config.vm.box = "chef/centos-6.5"
+	config.vm.box = "bento/centos-6.7"
 
 
 	config.vm.define :rundeck do |rundeck|
