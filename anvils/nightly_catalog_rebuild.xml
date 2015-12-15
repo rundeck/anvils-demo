@@ -1,0 +1,58 @@
+<joblist>
+  <job>
+    <context>
+      <options preserveOrder='true'>
+        <option enforcedvalues='true' name='catalog' required='true' value='partner' values='inventory,partner,shipping-rates'>
+          <description>catalog name</description>
+        </option>
+      </options>
+    </context>
+    <description>rebuild the catalog data</description>
+    <dispatch>
+      <excludePrecedence>true</excludePrecedence>
+      <keepgoing>true</keepgoing>
+      <rankOrder>ascending</rankOrder>
+      <threadcount>1</threadcount>
+    </dispatch>
+    <executionEnabled>true</executionEnabled>
+    <group>anvils</group>
+    <id>c9237bcc-611b-418d-831a-004a4dc8a9d9</id>
+    <loglevel>INFO</loglevel>
+    <name>nightly_catalog_rebuild</name>
+    <nodefilters>
+      <filter>tags: db</filter>
+    </nodefilters>
+    <nodesSelectedByDefault>true</nodesSelectedByDefault>
+    <notification>
+      <onfailure>
+        <email recipients='bizops@anvils.com' />
+      </onfailure>
+      <onsuccess>
+        <email recipients='bizops@anvils.com' />
+      </onsuccess>
+    </notification>
+    <schedule>
+      <month month='*' />
+      <time hour='00' minute='00' seconds='0' />
+      <weekday day='*' />
+      <year year='*' />
+    </schedule>
+    <scheduleEnabled>true</scheduleEnabled>
+    <sequence keepgoing='false' strategy='node-first'>
+      <command>
+        <script><![CDATA[#!/bin/bash
+set -eu
+CATALOG=$1
+echo "# Rebuild catalog: $CATALOG"
+echo ""
+echo "- customer: ${RD_NODE_ANVILS_CUSTOMER}"
+echo "- location: ${RD_NODE_ANVILS_LOCATION}"
+echo "- database: ${RD_NODE_NAME:-}"
+echo "Completed."
+exit $?]]></script>
+        <scriptargs>${option.catalog}</scriptargs>
+      </command>
+    </sequence>
+    <uuid>c9237bcc-611b-418d-831a-004a4dc8a9d9</uuid>
+  </job>
+</joblist>

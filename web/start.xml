@@ -1,0 +1,33 @@
+<joblist>
+  <job>
+    <context>
+      <options preserveOrder='true'>
+        <option enforcedvalues='true' name='dir' required='true' valuesUrl='http://localhost/anvils/options/anvils-dir.json' />
+      </options>
+    </context>
+    <description>start the web servers</description>
+    <dispatch>
+      <excludePrecedence>true</excludePrecedence>
+      <keepgoing>true</keepgoing>
+      <rankOrder>ascending</rankOrder>
+      <threadcount>1</threadcount>
+    </dispatch>
+    <executionEnabled>true</executionEnabled>
+    <group>web</group>
+    <id>3cfa6561-b7ef-4b28-b71f-08bff78c61a1</id>
+    <loglevel>INFO</loglevel>
+    <name>start</name>
+    <nodefilters>
+      <filter>tags: www</filter>
+    </nodefilters>
+    <nodesSelectedByDefault>true</nodesSelectedByDefault>
+    <scheduleEnabled>true</scheduleEnabled>
+    <sequence keepgoing='false' strategy='node-first'>
+      <command>
+        <scriptargs>${option.dir}</scriptargs>
+        <scripturl>http://localhost/anvils/scripts/start.sh</scripturl>
+      </command>
+    </sequence>
+    <uuid>3cfa6561-b7ef-4b28-b71f-08bff78c61a1</uuid>
+  </job>
+</joblist>

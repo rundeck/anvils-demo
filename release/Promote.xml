@@ -1,0 +1,51 @@
+<joblist>
+  <job>
+    <context>
+      <options preserveOrder='true'>
+        <option delimiter=',' enforcedvalues='true' multivalued='true' name='packages' required='true' valuesUrl='http://localhost/anvils/options/packages/${option.release.value}.json'>
+          <description>packages versions</description>
+        </option>
+        <option enforcedvalues='true' name='release' required='true' valuesUrl='http://localhost/anvils/options/releases/${option.repository.value}.json'>
+          <description>release tag</description>
+        </option>
+        <option enforcedvalues='true' name='repository' required='true' valuesUrl='http://localhost/anvils/options/repositories.json'>
+          <description>repository name</description>
+        </option>
+      </options>
+    </context>
+    <description>promote the packages to the ops repository.</description>
+    <executionEnabled>true</executionEnabled>
+    <group>release</group>
+    <id>ffde3671-73a1-4d9a-8a89-a197008258c2</id>
+    <loglevel>INFO</loglevel>
+    <name>Promote</name>
+    <scheduleEnabled>true</scheduleEnabled>
+    <sequence keepgoing='false' strategy='node-first'>
+      <command>
+        <script><![CDATA[#!/bin/bash
+set -eu
+(( $# != 3 )) && {
+  printf >&2 'usage: $0 repository release pkg1,...,pkgN\n'
+  exit 2
+}
+REPOSITORY=$1 RELEASE=$2 PACKAGES=$3
+
+# Split the "packages" multi-value option using the comma delimiter
+IFS=,
+PACKAGELIST=(${PACKAGES})
+
+printf "Promote packages from release: '$RELEASE', repository '$REPOSITORY':"
+printf "\n"
+for package in "${PACKAGELIST[@]:-}"
+do
+   printf -- "- %-10s pushed\n" $package
+done
+
+printf "Completed promoting ${#PACKAGELIST[*]} packages.\n"
+exit $?]]></script>
+        <scriptargs>${option.repository} ${option.release} ${option.packages}</scriptargs>
+      </command>
+    </sequence>
+    <uuid>ffde3671-73a1-4d9a-8a89-a197008258c2</uuid>
+  </job>
+</joblist>

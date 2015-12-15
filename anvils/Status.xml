@@ -1,0 +1,47 @@
+<joblist>
+  <job>
+    <context>
+      <options preserveOrder='true'>
+        <option enforcedvalues='true' name='dir' required='true' valuesUrl='http://localhost/anvils/options/anvils-dir.json' />
+      </options>
+    </context>
+    <description>Check the status of anvils</description>
+    <dispatch>
+      <excludePrecedence>true</excludePrecedence>
+      <keepgoing>true</keepgoing>
+      <rankOrder>ascending</rankOrder>
+      <threadcount>1</threadcount>
+    </dispatch>
+    <executionEnabled>true</executionEnabled>
+    <group>anvils</group>
+    <id>b0661686-0535-417f-bd57-385131cf4dc3</id>
+    <loglevel>INFO</loglevel>
+    <multipleExecutions>true</multipleExecutions>
+    <name>Status</name>
+    <nodefilters>
+      <filter>tags: www</filter>
+    </nodefilters>
+    <nodesSelectedByDefault>true</nodesSelectedByDefault>
+    <scheduleEnabled>true</scheduleEnabled>
+    <sequence keepgoing='true' strategy='node-first'>
+      <command>
+        <description>Check pid</description>
+        <node-step-plugin type='file-util:contains'>
+          <configuration>
+            <entry key='file' value='${option.dir}/pid' />
+            <entry key='string' value='&apos;^[0-9]*$&apos;' />
+          </configuration>
+        </node-step-plugin>
+      </command>
+      <command>
+        <description>Process status</description>
+        <errorhandler keepgoingOnSuccess='true'>
+          <exec>echo "Continuing..."</exec>
+        </errorhandler>
+        <scriptargs>${option.dir}</scriptargs>
+        <scripturl>http://localhost/anvils/scripts/status.sh</scripturl>
+      </command>
+    </sequence>
+    <uuid>b0661686-0535-417f-bd57-385131cf4dc3</uuid>
+  </job>
+</joblist>

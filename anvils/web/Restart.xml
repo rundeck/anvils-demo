@@ -1,0 +1,62 @@
+<joblist>
+  <job>
+    <context>
+      <options preserveOrder='true'>
+        <option enforcedvalues='true' name='dir' required='true' valuesUrl='http://localhost/anvils/options/anvils-dir.json' />
+        <option enforcedvalues='true' name='method' valuesUrl='http://localhost/anvils/options/stop-method.json' />
+      </options>
+    </context>
+    <description>restart the web servers</description>
+    <dispatch>
+      <excludePrecedence>true</excludePrecedence>
+      <keepgoing>true</keepgoing>
+      <rankOrder>ascending</rankOrder>
+      <threadcount>2</threadcount>
+    </dispatch>
+    <executionEnabled>true</executionEnabled>
+    <group>anvils/web</group>
+    <id>54fa59d2-ca81-476b-95b1-23ad67fc7be3</id>
+    <loglevel>INFO</loglevel>
+    <name>Restart</name>
+    <nodefilters>
+      <filter>tags: www</filter>
+    </nodefilters>
+    <nodesSelectedByDefault>true</nodesSelectedByDefault>
+    <scheduleEnabled>true</scheduleEnabled>
+    <sequence keepgoing='false' strategy='node-first'>
+      <command>
+        <description>Stop the service</description>
+        <jobref group='anvils/web' name='stop'>
+          <arg line='-dir ${option.dir} -method ${option.method}' />
+        </jobref>
+      </command>
+      <command>
+        <description>Rotate the log</description>
+        <node-step-plugin type='file-util:rotate'>
+          <configuration>
+            <entry key='compress' value='gzip' />
+            <entry key='file' value='${option.dir}/log' />
+            <entry key='tstamp-format' value='+%Y%m%d' />
+          </configuration>
+        </node-step-plugin>
+      </command>
+      <command>
+        <description>Start the service</description>
+        <jobref group='anvils/web' name='start'>
+          <arg line='-dir ${option.dir}' />
+        </jobref>
+      </command>
+      <command>
+        <description>Check the pid</description>
+        <node-step-plugin type='waitfor:file-exists'>
+          <configuration>
+            <entry key='file' value='${option.dir}/pid' />
+            <entry key='interval' value='1' />
+            <entry key='maxtry' value='10' />
+          </configuration>
+        </node-step-plugin>
+      </command>
+    </sequence>
+    <uuid>54fa59d2-ca81-476b-95b1-23ad67fc7be3</uuid>
+  </job>
+</joblist>
