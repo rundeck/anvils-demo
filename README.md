@@ -80,8 +80,8 @@ After logging in as any of the users mentioned above, click on the user's profil
 to see a list of that users group memberships.
 
 
-The [anvils.aclpolicy](https://github.com/rundeck/anvils-demo/blob/master/anvils.aclpolicy)
-file specifies what actions users like the "ops" and "dev" can do. All groups can 
+The [aclpolicy](https://github.com/rundeck/anvils-demo/tree/master/aclpolicy/)
+files specify what actions users like the "ops" and "dev" can do. All groups can 
 view information about the nodes, jobs, and history so everybody has basic visibility.
 
 When logging into each of the users, notice how the job listing and job toolbar reflect
