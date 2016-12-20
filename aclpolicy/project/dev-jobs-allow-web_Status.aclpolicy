@@ -1,6 +1,4 @@
 description: 'Given user in group "dev" and for job matching ".*/Status", then allow [read,run].'
-context:
-  project: '.*'
 for:
   job:
     - match:

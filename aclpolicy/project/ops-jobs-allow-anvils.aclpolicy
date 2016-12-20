@@ -1,0 +1,10 @@
+description: 'Given user in group "ops" and for job matches ".*", then allow action [read,run].'
+for:
+  job:
+    - match:
+        group: '.*'
+        name: '.*'
+      allow: [run,read]
+by:
+  group: ops
+# ops/jobs/allow/web.aclpolicy

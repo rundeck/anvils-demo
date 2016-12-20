@@ -1,17 +1,16 @@
 <joblist>
   <job>
-    <id>54fa59d2-ca81-476b-95b1-23ad67fc7be3</id>
     <loglevel>INFO</loglevel>
     <sequence keepgoing='false' strategy='node-first'>
       <command>
-        <jobref name='stop' group='anvils/web'>
+        <jobref name='stop' group='web'>
           <arg line='-dir ${option.dir} -method ${option.method}' />
         </jobref>
         <description>Stop the service</description>
       </command>
       <command>
         <description>Rotate the log</description>
-        <node-step-plugin type='file-util:rotate'>
+        <node-step-plugin type='nixy-file-rotate'>
           <configuration>
             <entry key='compress' value='gzip' />
             <entry key='file' value='${option.dir}/log' />
@@ -20,14 +19,14 @@
         </node-step-plugin>
       </command>
       <command>
-        <jobref name='start' group='anvils/web'>
+        <jobref name='start' group='web'>
           <arg line='-dir ${option.dir}' />
         </jobref>
         <description>Start the service</description>
       </command>
       <command>
         <description>Check the pid</description>
-        <node-step-plugin type='waitfor:file-exists'>
+        <node-step-plugin type='nixy-waitfor-file-exists'>
           <configuration>
             <entry key='file' value='${option.dir}/pid' />
             <entry key='interval' value='1' />
@@ -39,10 +38,9 @@
     <description>restart the web servers</description>
     <name>Restart</name>
     <context>
-      <project>anvils</project>
       <options>
-        <option name='dir' valuesUrl='http://localhost/anvils/options/anvils-dir.json' enforcedvalues='true' required='true' />
-        <option name='method' valuesUrl='http://localhost/anvils/options/stop-method.json' enforcedvalues='true' />
+        <option name='dir' values='anvils' enforcedvalues='true' required='true' />
+        <option name='method' value="anvils:stop" values='anvils:stop,anvils:stop --force' enforcedvalues='true' />
       </options>
     </context>
     <dispatch>
@@ -51,10 +49,9 @@
       <excludePrecedence>true</excludePrecedence>
       <rankOrder>ascending</rankOrder>
     </dispatch>
-    <uuid>54fa59d2-ca81-476b-95b1-23ad67fc7be3</uuid>
     <nodefilters>
       <filter>tags: www</filter>
     </nodefilters>
-    <group>anvils/web</group>
+    <group>web</group>
   </job>
 </joblist>

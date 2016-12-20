@@ -2,25 +2,16 @@
 
 set -eu
 
-
 if (( $# != 1 ))
 then
-    echo >&2 "usage: add-project project"
+    echo >&2 "usage: $0 project"
     exit 1
 fi
 PROJECT=$1
 
-fwk_prop_read() {
-  local propkey=$1
-  value=$(awk -F= "/framework.$propkey/ {print \$2}" /etc/rundeck/framework.properties)
-  printf "%s" "${value//[[:space:]]/}"
-}
-
-RDECK_URL=$(fwk_prop_read  server.url)
-RDECK_USER=$(fwk_prop_read server.username)
-RDECK_PASS=$(fwk_prop_read server.password)
-RDECK_NAME=$(fwk_prop_read server.name)
-RDECK_HOST=$(fwk_prop_read server.hostname)
+export RD_URL=$(awk -F= "/grails.serverURL/ {print \$2}" /etc/rundeck/rundeck-config.properties)
+export RD_USER=admin RD_PASSWORD=admin
+export RD_PROJECT=$PROJECT
 
 # Create a directory for the resource model
 ETC=/var/rundeck/projects/${PROJECT}/etc
@@ -36,12 +27,12 @@ RESOURCES=( www{1,2} app{1,2} db1 )
 for NAME in ${RESOURCES[*]:-}
 do
   # Create local host account
-	if ! id $NAME
+	if ! id $NAME 2>/dev/null
 	then	 :
 	else	 continue
 	fi		
   
-  echo "Add host user ${NAME}."
+  echo "Adding user account ${NAME}..."
 	useradd -d /home/$NAME -m $NAME
 
   # Generate an SSH key for this user
@@ -56,18 +47,13 @@ do
   # key-path convention: {org}/{app}/{user}
   #
   KEYPATH="acme/${PROJECT}/${NAME}/id_rsa"
-
-  rerun  rundeck-admin: key-upload \
-    --keypath $KEYPATH --format private --file /home/$NAME/.ssh/id_rsa \
-    --user $RDECK_USER --password $RDECK_PASS --url ${RDECK_URL} 
-  rerun  rundeck-admin: key-upload \
-    --keypath $KEYPATH.pub --format public --file /home/$NAME/.ssh/id_rsa.pub \
-    --user $RDECK_USER --password $RDECK_PASS --url ${RDECK_URL} 
+  rd keys create \
+    --path "$KEYPATH" --type privateKey --file "/home/$NAME/.ssh/id_rsa"
+  rd keys create \
+    --path "$KEYPATH.pub" --type publicKey --file "/home/$NAME/.ssh/id_rsa.pub"
 
   # List the keys
-  rerun  rundeck-admin: key-list \
-    --keypath acme/${PROJECT}/${NAME} \
-    --user $RDECK_USER --password $RDECK_PASS --url ${RDECK_URL}
+  rd keys list --path acme/${PROJECT}/${NAME} 
 
   # Add node definition
   # --------------
@@ -93,7 +79,7 @@ do
 EOF
     echo "Added node: ${NAME} [role: $ROLE]."
 done
-chown -R rundeck:rundeck $RESOURCES_D
+chown -R rundeck:rundeck "$RESOURCES_D"
 
 # Configure SSHD to pass RD environment variables through.
 if ! grep -q "^AcceptEnv RD_" /etc/ssh/sshd_config
@@ -112,7 +98,11 @@ chown -R rundeck:rundeck /var/rundeck
 #
 # Create the project
 
-su - rundeck -c "rd-project -a create -p $PROJECT --resources.source.2.type=directory --resources.source.2.config.directory=$RESOURCES_D"
+rd projects create -p $PROJECT -- --resources.source.2.type=directory --resources.source.2.config.directory=$RESOURCES_D
+
+RDECK_NAME=$(awk -F= "/framework.server.name/ {print \$2}" /etc/rundeck/framework.properties)
+RDECK_HOST=$(awk -F= "/framework.server.hostname/ {print \$2}" /etc/rundeck/framework.properties)
+
 
 cat > $ETC/resources.xml <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
@@ -130,29 +120,38 @@ cat > $ETC/resources.xml <<EOF
 </project>
 EOF
 
+
+
+# Add the Anvils project level ACLs
+echo "Loading project level ACL policy files ..."
+for acl in /vagrant/aclpolicy/project/*.aclpolicy
+do
+    rd projects acls create --file $acl --name $(basename $acl)
+done
+
+rd projects acls list
+
+
 # Run a local ad-hoc command for sanity checking.
-su - rundeck -c "dispatch -p $PROJECT"
-# Run a distributed ad-hoc command across all nodes
-su - rundeck -c "dispatch -p $PROJECT -f '*' whoami"
+echo "Running a adhoc command across the nodes tagged for anvils ..."
+rd adhoc -p $PROJECT --follow --filter 'tags: anvils' -- whoami
 
 # Add jobs, scripts and options
 # -----------------------------
 
-mkdir -p /var/www/html/$PROJECT/{scripts,options,jobs}
-cp -r /vagrant/jobs/*    /var/www/html/$PROJECT/jobs/
-cp -r /vagrant/scripts/* /var/www/html/$PROJECT/scripts/
+mkdir -p /var/www/html/$PROJECT/options
 cp -r /vagrant/options/* /var/www/html/$PROJECT/options/
-chown -R apache:rundeck /var/www/html/$PROJECT/{scripts,options,jobs}
-chmod 640 /var/www/html/$PROJECT/jobs/*
+chown -R apache:rundeck /var/www/html/$PROJECT/options
 
 # Load the jobs
-for job in /var/www/html/$PROJECT/jobs/*.xml
+echo "Loading jobs for $PROJECT project ..."
+for job in /vagrant/jobs/*.xml
 do
-	su - rundeck -c "rd-jobs load -f $job"
+	rd jobs load --file "$job" --project $PROJECT
 done
 
 # List the jobs
-su - rundeck -c "rd-jobs list -p $PROJECT"
+rd jobs list -p $PROJECT
 
 
 exit $?

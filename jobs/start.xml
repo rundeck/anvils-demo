@@ -3,17 +3,31 @@
      <name>start</name>  
        <description>start the web servers</description>  
      <loglevel>INFO</loglevel>  
-     <group>anvils/web</group>  
+     <group>web</group>  
     <context> 
-      <project>anvils</project> 
-         <options> 
-            <option name="dir" enforcedvalues="true" required="true" 
-             valuesUrl='http://localhost/anvils/options/anvils-dir.json'/>                  
-          </options>        
+      <options> 
+        <option name="dir" enforcedvalues="true" required="true" 
+           values='anvils'/>                  
+      </options>        
     </context>  
     <sequence threadcount="1" keepgoing="false" strategy="node-first"> 
      <command> 
-      <scripturl>http://localhost/anvils/scripts/start.sh</scripturl>
+        <script><![CDATA[#!/usr/bin/env bash
+#/ usage: $0 ?dir?
+
+set -eu
+
+(( $# != 1 )) && {
+  grep '^#/ usage:' <"$0" | cut -c4- >&2
+  exit 2  
+}
+DIR=$1
+
+mkdir -p $DIR
+echo $$ > $DIR/pid
+
+echo "- Web started (pid=$$)" | tee -a $DIR/log
+          ]]></script>
       <scriptargs>${option.dir}</scriptargs>       
      </command> 
   </sequence>  
@@ -23,8 +37,11 @@
       </include> 
    </nodefilters>  
    <dispatch> 
-     <threadcount>1</threadcount>  
-     <keepgoing>true</keepgoing> 
+      <excludePrecedence>true</excludePrecedence>
+      <keepgoing>true</keepgoing>
+      <rankAttribute>anvils:server-pool-id</rankAttribute>
+      <rankOrder>ascending</rankOrder>
+      <threadcount>1</threadcount>
    </dispatch> 
   </job>
 </joblist>

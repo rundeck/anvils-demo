@@ -1,6 +1,4 @@
 description: 'Given user in group ".*" and for resource, then allow action [read].'
-context:
-  project: '.*'
 for:
   resource:
     - allow: [read]

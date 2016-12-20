@@ -1,8 +1,6 @@
 description: 'Given user in group ".*" and for resource, then allow action read.'
-context:
-  project: 'anvils'
 for:
-  resource:
+  node:
     - allow: [read]
 by:
   group: '.*'

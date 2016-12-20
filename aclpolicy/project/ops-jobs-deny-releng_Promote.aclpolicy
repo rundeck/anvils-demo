@@ -1,10 +1,8 @@
 description: 'Given user in group "ops" and for job matches "anvils/Promote", then deny action [run].'
-context:
-  project: '.*'
 for:
   job:
     - match:
-        group: 'anvils'
+        group: 'release'
         name: 'Promote'
       deny: [run]
 by:

@@ -30,7 +30,6 @@ exit $?]]></script>
     <description>promote the packages to the ops repository.</description>
     <name>Promote</name>
     <context>
-      <project>anvils</project>
       <options>
         <option required='true' name='repository' enforcedvalues='true' valuesUrl='http://localhost/anvils/options/repositories.json'>
           <description>repository name</description>
@@ -43,6 +42,6 @@ exit $?]]></script>
         </option>
       </options>
     </context>
-    <group>anvils</group>
+    <group>release</group>
   </job>
 </joblist>

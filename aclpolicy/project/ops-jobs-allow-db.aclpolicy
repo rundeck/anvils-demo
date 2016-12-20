@@ -1,0 +1,9 @@
+description: 'Given user in group "ops" and for job matching "web/.*", then allow action [read,run].'
+for:
+  job:
+    - match:
+        group: 'web'
+        name: '.*'
+      allow: [run,read]
+by:
+  group: ops

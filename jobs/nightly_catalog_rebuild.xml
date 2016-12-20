@@ -34,7 +34,6 @@ exit $?]]></script>
       <description>rebuild the catalog data</description>
       <name>nightly_catalog_rebuild</name>
       <context>
-        <project>anvils</project>
         <options>
           <option required='true' name='catalog' enforcedvalues='true' value='partner' values='partner,shipping-rates,inventory'>
             <description>catalog name</description>
@@ -49,6 +48,6 @@ exit $?]]></script>
           <email recipients='bizops@anvils.com' />
         </onsuccess>
       </notification>    
-      <group>anvils/</group>
+      <group>catalog</group>
     </job>
   </joblist>

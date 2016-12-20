@@ -17,24 +17,15 @@ RUNDECK_REPO_URL=$2
 # ----------------
 #
 # Utilities
-# Bootstrap a fedora repo to get xmlstarlet
-
-if ! rpm -q epel-release
-then
-    curl -s http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm -o epel-release.rpm 
-    rpm -Uvh epel-release.rpm
-    sed -i -e 's/^mirrorlist=/#mirrorlist=/g' /etc/yum.repos.d/epel.repo
-    sed -i -e 's/^#baseurl=/baseurl=/g' /etc/yum.repos.d/epel.repo
-fi
-
-yum -y install xmlstarlet coreutils
+#
+yum -y install coreutils
 
 #
 # JRE
 #
-yum -y install java-1.7.0
+yum -y install java-1.8.0
 #
-# Rundeck 
+# Rundeck server and CLI
 #
 if [ -n "$RUNDECK_REPO_URL" ]
 then
@@ -49,63 +40,58 @@ else
     fi
 fi
 
-yum -y install rundeck
+yum -y install rundeck rundeck-cli
 
 # Reset the home directory permission as it comes group writeable.
 # This is needed for ssh requirements.
 chmod 755 ~rundeck
 
 # Add Plugins
-
+LIBEXT=/var/lib/rundeck/libext
 # Hipchat
-[[ ! -f /var/lib/rundeck/libext/rundeck-hipchat-plugin-1.0.0.jar ]] && {
-    cp /vagrant/rundeck-hipchat-plugin-1.0.0.jar /var/lib/rundeck/libext/
+[[ ! -f $LIBEXT/rundeck-hipchat-plugin-1.0.0.jar ]] && {
+    cp /vagrant/rundeck-hipchat-plugin-1.0.0.jar $LIBEXT
 }
 # nexus
-[[ ! -f /var/lib/rundeck/libext/nexus-step-plugins-1.0.0.jar ]] && {
-curl -sfL -o /var/lib/rundeck/libext/nexus-step-plugins-1.0.0.jar https://github.com/rundeck-plugins/nexus-step-plugins/releases/download/v1.0.0/nexus-step-plugins-1.0.0.jar
+[[ ! -f $LIBEXT/nexus-step-plugins-1.0.0.jar ]] && {
+curl -sfL -o $LIBEXT/nexus-step-plugins-1.0.2.jar https://github.com/rundeck-plugins/nexus-step-plugins/releases/download/1.0.2/nexus-step-plugins-1.0.2.jar
 }
 # puppet
-[[ ! -f /var/lib/rundeck/libext/puppet-apply-step.zip ]] && {
-curl -sfL -o /var/lib/rundeck/libext/puppet-apply-step.zip https://github.com/rundeck-plugins/puppet-apply-step/releases/download/v1.0.0/puppet-apply-step-1.0.0.zip
+[[ ! -f $LIBEXT/puppet-apply-step.zip ]] && {
+curl -sfL -o $LIBEXT/puppet-apply-step.zip https://github.com/rundeck-plugins/puppet-apply-step/releases/download/v1.0.0/puppet-apply-step-1.0.0.zip
 }
 # jira
-[[ ! -f /var/lib/rundeck/libext/jira-workflow-step-1.0.0.jar ]] && {
-curl -sfL -o /var/lib/rundeck/libext/jira-workflow-step-1.0.0.jar https://github.com/rundeck-plugins/jira-workflow-step/releases/download/v1.0.0/jira-workflow-step-1.0.0.jar
+[[ ! -f $LIBEXT/jira-workflow-step-1.0.0.jar ]] && {
+curl -sfL -o $LIBEXT/jira-workflow-step-1.0.0.jar https://github.com/rundeck-plugins/jira-workflow-step/releases/download/v1.0.0/jira-workflow-step-1.0.0.jar
 }
-[[ ! -f /var/lib/rundeck/libext/jira-notification-1.0.0.jar ]] && {
-curl -sfL -o /var/lib/rundeck/libext/jira-notification-1.0.0.jar https://github.com/rundeck-plugins/jira-notification/releases/download/v1.0.0/jira-notification-1.0.0.jar
+[[ ! -f $LIBEXT/jira-notification-1.0.0.jar ]] && {
+curl -sfL -o $LIBEXT/jira-notification-1.0.0.jar https://github.com/rundeck-plugins/jira-notification/releases/download/v1.0.0/jira-notification-1.0.0.jar
 }
 # jabber
-[[ ! -f /var/lib/rundeck/libext/jabber-notification-1.0.jar ]] && {
-curl -sfL -o /var/lib/rundeck/libext/jabber-notification-1.0.jar https://github.com/rundeck-plugins/jabber-notification/releases/download/v1.0/jabber-notification-1.0.jar
+[[ ! -f $LIBEXT/jabber-notification-1.0.jar ]] && {
+curl -sfL -o $LIBEXT/jabber-notification-1.0.jar https://github.com/rundeck-plugins/jabber-notification/releases/download/v1.0/jabber-notification-1.0.jar
 }
 # pagerduty
-[[ ! -f /var/lib/rundeck/libext/PagerDutyNotification.groovy ]] && {
-curl -sfL -o /var/lib/rundeck/libext/PagerDutyNotification.groovy https://raw.githubusercontent.com/rundeck-plugins/pagerduty-notification/master/src/PagerDutyNotification.groovy
+[[ ! -f $LIBEXT/PagerDutyNotification.groovy ]] && {
+curl -sfL -o $LIBEXT/PagerDutyNotification.groovy https://raw.githubusercontent.com/rundeck-plugins/pagerduty-notification/master/src/PagerDutyNotification.groovy
 }
 # EC2
-[[ ! -f /var/lib/rundeck/libext/rundeck-ec2-nodes-plugin-1.5.jar ]] && {
-curl -sfL -o /var/lib/rundeck/libext/rundeck-ec2-nodes-plugin-1.5.jar https://github.com/rundeck-plugins/rundeck-ec2-nodes-plugin/releases/download/1.5/rundeck-ec2-nodes-plugin-1.5.jar
+[[ ! -f $LIBEXT/rundeck-ec2-nodes-plugin-1.5.3.jar ]] && {
+curl -sfL -o $LIBEXT/rundeck-ec2-nodes-plugin-1.5.3.jar https://github.com/rundeck-plugins/rundeck-ec2-nodes-plugin/releases/download/v1.5.3/rundeck-ec2-nodes-plugin-1.5.3.jar
 }
 
-# file-util
-curl -sfL -o /var/lib/rundeck/libext/file-util.zip https://bintray.com/artifact/download/rundeck-plugins/rerun-remote-node-steps/file-util/1.0.0/file-util.zip
+# nixy/file
+curl -sfL -o $LIBEXT/nixy-file.zip "https://dl.bintray.com/rundeck/rundeck-plugins/nixy-file-1.0.0.zip"
 
-# waitfor
-curl -sfL -o /var/lib/rundeck/libext/waitfor.zip https://bintray.com/artifact/download/rundeck-plugins/rerun-remote-node-steps/waitfor/1.1.0/waitfor.zip
+# nixy/waitfor
+curl -sfL -o $LIBEXT/nixy-waitfor.zip "https://dl.bintray.com/rundeck/rundeck-plugins/nixy-waitfor-1.0.0.zip"
 
-chown -R rundeck:rundeck /var/lib/rundeck/libext
+chown -R rundeck:rundeck $LIBEXT
 
 # Configure the system
 
 # Rewrite the rundeck-config.properties to use the IP of this vagrant VM
 sed -i "s^grails.serverURL=.*^grails.serverURL=http://$RDIP:4440^g" /etc/rundeck/rundeck-config.properties 
-
-# Add the Anvils specific ACL
-cp /vagrant/aclpolicy/*.aclpolicy /etc/rundeck/
-chown rundeck:rundeck /etc/rundeck/*.aclpolicy
-chmod 444 /etc/rundeck/*.aclpolicy
 
 # Add user/roles to the realm.properties
 cat >> /etc/rundeck/realm.properties <<EOF
@@ -150,6 +136,21 @@ then
     done
 fi
 
+echo "Waiting 30s for startup..."
+sleep 30
 echo "Rundeck started."
+
+echo "Loading system level ACL policy files ..."
+
+export RD_URL=$(awk -F= "/grails.serverURL/ {print \$2}" /etc/rundeck/rundeck-config.properties)
+export RD_USER=admin RD_PASSWORD=admin
+
+# Add the Anvils system level ACLs
+for acl in /vagrant/aclpolicy/system/*.aclpolicy
+do
+    rd system acls create --file $acl --name $(basename $acl)
+done
+
+rd system acls list
 
 exit $?

@@ -1,6 +1,5 @@
 <joblist>
   <job>
-    <id>b0661686-0535-417f-bd57-385131cf4dc3</id>
     <loglevel>INFO</loglevel>
     <multipleExecutions>true</multipleExecutions>
     <sequence keepgoing='true' strategy='node-first'>
@@ -14,7 +13,30 @@
         </node-step-plugin>
       </command>
       <command>
-        <scripturl>http://localhost/anvils/scripts/status.sh</scripturl>
+        <script><![CDATA[#!/usr/bin/env bash
+#/ usage: $0 ?dir?
+
+set -eu
+
+(( $# != 1 )) && {
+  grep '^#/ usage:' <"$0" | cut -c4- >&2
+  exit 2  
+}
+DIR=$1
+[[ ! -f $DIR/pid ]] && { echo DOWN; exit 1; }
+
+PID=$(< $DIR/pid)
+
+if [[ -z "${PID:-}" ]]
+then
+  echo "DOWN"; exit 1;
+else 
+  echo "RUNNING"
+fi  
+
+exit $?
+
+        ]]></script>
         <errorhandler keepgoingOnSuccess='true'>
           <exec>echo "Continuing..."</exec>
         </errorhandler>
@@ -25,9 +47,8 @@
     <description>Check the status of anvils</description>
     <name>Status</name>
     <context>
-      <project>anvils</project>
       <options>
-        <option name='dir' valuesUrl='http://localhost/anvils/options/anvils-dir.json' enforcedvalues='true' required='true' />
+        <option name='dir' values='anvils' enforcedvalues='true' required='true' />
       </options>
     </context>
     <dispatch>
@@ -36,10 +57,9 @@
       <excludePrecedence>true</excludePrecedence>
       <rankOrder>ascending</rankOrder>
     </dispatch>
-    <uuid>b0661686-0535-417f-bd57-385131cf4dc3</uuid>
     <nodefilters>
       <filter>tags: www</filter>
     </nodefilters>
-    <group>anvils</group>
+    <group>web</group>
   </job>
 </joblist>

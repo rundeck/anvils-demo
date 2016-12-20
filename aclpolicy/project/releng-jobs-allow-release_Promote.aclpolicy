@@ -1,10 +1,8 @@
 description: 'Given user in group "releng" and for job matches "anvils/Promote", then allow action [read,run].'
-context:
-  project: '.*'
 for:
   job:
     - match:
-        group: 'anvils'
+        group: 'release'
         name: 'Promote'
       allow: [run,read]
 by:
