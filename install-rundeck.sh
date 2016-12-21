@@ -24,6 +24,7 @@ yum -y install coreutils
 # JRE
 #
 yum -y install java-1.8.0
+
 #
 # Rundeck server and CLI
 #
@@ -42,12 +43,14 @@ fi
 
 yum -y install rundeck rundeck-cli
 
-# Reset the home directory permission as it comes group writeable.
-# This is needed for ssh requirements.
+# Reset the home directory permission as it comes group writeable
+# and ssh will expect it to be only owner writable.
 chmod 755 ~rundeck
 
 # Add Plugins
-LIBEXT=/var/lib/rundeck/libext
+echo "Installing plugins ..."
+LIBEXT=/var/lib/rundeck/libext # Plugin directory
+
 # Hipchat
 [[ ! -f $LIBEXT/rundeck-hipchat-plugin-1.0.0.jar ]] && {
     cp /vagrant/rundeck-hipchat-plugin-1.0.0.jar $LIBEXT
@@ -93,7 +96,7 @@ chown -R rundeck:rundeck $LIBEXT
 # Rewrite the rundeck-config.properties to use the IP of this vagrant VM
 sed -i "s^grails.serverURL=.*^grails.serverURL=http://$RDIP:4440^g" /etc/rundeck/rundeck-config.properties 
 
-# Add user/roles to the realm.properties
+# Add user accounts and groups to the realm.properties
 cat >> /etc/rundeck/realm.properties <<EOF
 admin:admin,user,admin,anvils
 dev:dev,dev,user,anvils
@@ -125,7 +128,7 @@ then
     do
         if ! grep  "Connector@" /var/log/rundeck/service.log
         then  printf >&2 ".";# progress output.
-        else  break; # successful message.
+        else  break; # successful message matched by grep.
         fi
         let count=$count+1;# increment attempts
         [ $count -eq $max ] && {
@@ -136,16 +139,14 @@ then
     done
 fi
 
-echo "Waiting 30s for startup..."
-sleep 30
 echo "Rundeck started."
 
+# Add the Anvils system level ACLs
 echo "Loading system level ACL policy files ..."
-
 export RD_URL=$(awk -F= "/grails.serverURL/ {print \$2}" /etc/rundeck/rundeck-config.properties)
 export RD_USER=admin RD_PASSWORD=admin
+export RD_HTTP_TIMEOUT=60
 
-# Add the Anvils system level ACLs
 for acl in /vagrant/aclpolicy/system/*.aclpolicy
 do
     rd system acls create --file $acl --name $(basename $acl)

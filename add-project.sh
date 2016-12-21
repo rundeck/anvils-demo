@@ -4,7 +4,7 @@ set -eu
 
 if (( $# != 1 ))
 then
-    echo >&2 "usage: $0 project"
+    echo >&2 "usage: $0 <project>"
     exit 1
 fi
 PROJECT=$1
@@ -17,22 +17,31 @@ export RD_PROJECT=$PROJECT
 ETC=/var/rundeck/projects/${PROJECT}/etc
 RESOURCES_D=$ETC/resources.d
 mkdir -p "$RESOURCES_D"
+CATALOG_D=/var/rundeck/$PROJECT/catalog
+mkdir -p $CATALOG_D
+for category in {partner,inventory,shipping-rates}
+do
+  cat >$CATALOG_D/${category}.data <<EOF
+  category: $category
+  date: $(date)
+EOF
+done
 
 # Fictitious hosts that mascarade as nodes
 RESOURCES=( www{1,2} app{1,2} db1 )
 
-# Add a user account and node entry for each resource.
-# -------------------------------------
+# Add a user account and node entry for each Node.
+# -----------------------------------------------
 
 for NAME in ${RESOURCES[*]:-}
 do
-  # Create local host account
+  # Create local system account
 	if ! id $NAME 2>/dev/null
 	then	 :
 	else	 continue
 	fi		
   
-  echo "Adding user account ${NAME}..."
+  echo "Adding system account ${NAME}..."
 	useradd -d /home/$NAME -m $NAME
 
   # Generate an SSH key for this user
@@ -41,10 +50,11 @@ do
   cat /home/$NAME/.ssh/id_rsa.pub >> /home/$NAME/.ssh/authorized_keys
   chmod 600 /home/$NAME/.ssh/authorized_keys
   chown -R $NAME:$NAME /home/$NAME/.ssh
- 
-  # Upload SSH key
-  # --------------
-  # key-path convention: {org}/{app}/{user}
+  su - $NAME -c "mkdir /home/$NAME/catalog"
+
+  # Upload SSH key to the keystore
+  # ------------------------------
+  # key-path convention: {org}/{project}/{user}
   #
   KEYPATH="acme/${PROJECT}/${NAME}/id_rsa"
   rd keys create \
@@ -52,34 +62,41 @@ do
   rd keys create \
     --path "$KEYPATH.pub" --type publicKey --file "/home/$NAME/.ssh/id_rsa.pub"
 
-  # List the keys
-  rd keys list --path acme/${PROJECT}/${NAME} 
-
   # Add node definition
   # --------------
-  ROLE= INDEX=
+  ROLE= INDEX= ICON=
   [[ $NAME =~ ([^0-9]+)([0-9]+) ]] && { ROLE=${BASH_REMATCH[1]} INDEX=${BASH_REMATCH[2]} ; }
-
-  cat > $RESOURCES_D/$NAME.xml <<EOF
-<?xml version="1.0" encoding="UTF-8"?>
-
-<project>    
-  <node name="${NAME}.anvils.com" hostname="localhost" username="${NAME}"
-      description="A $ROLE server node." tags="${ROLE},anvils"
-      osFamily="unix" osName="$(uname -s)" osArch="$(uname -m)" osVersion="$(uname -r)"
-      ssh-key-storage-path="/keys/$KEYPATH"
-      >
-    <!-- anvils specific attributes -->
-    <attribute name="anvils:server-pool" value="$ROLE"/>
-    <attribute name="anvils:server-pool-id" value="$INDEX"/>
-    <attribute name="anvils:location" value="US-East"/>
-    <attribute name="anvils:customer" value="acme.com"/>
-  </node>
-</project>
+  case $ROLE in
+    app) ICON=shopping-cart ;;
+    db) ICON=hdd ;;
+    www) ICON=globe ;;
+  esac 
+  cat > $RESOURCES_D/$NAME.yaml <<EOF
+${NAME}.anvils.com:
+ name: ${NAME}.anvils.com
+ tags: $ROLE,anvils
+ hostname: localhost
+ username: ${NAME}
+ description: "A $ROLE server node."
+ osFamily: unix
+ osName: $(uname -s)
+ osVersion: $(uname -r)
+ ssh-key-storage-path: "/keys/$KEYPATH"
+ "anvils:server-pool": $ROLE
+ "anvils:server-pool-id": $INDEX
+ "anvils:location": US-East
+ "anvils:customer": acme.com
+ "anvils:catalog.categories.files": /home/$NAME/catalog
+ "ui:icon:name": "glyphicon-$ICON"
 EOF
     echo "Added node: ${NAME} [role: $ROLE]."
 done
+
 chown -R rundeck:rundeck "$RESOURCES_D"
+
+# List the keys stored for this project.
+rd keys list --path acme/${PROJECT}
+
 
 # Configure SSHD to pass RD environment variables through.
 if ! grep -q "^AcceptEnv RD_" /etc/ssh/sshd_config
@@ -89,7 +106,7 @@ then
 	/etc/init.d/sshd start
 fi
 
-# Create an example project
+# Create the project now there are keys and model data ready.
 # --------------------------
 
 echo "Creating project $PROJECT..."
@@ -98,17 +115,22 @@ chown -R rundeck:rundeck /var/rundeck
 #
 # Create the project
 
-rd projects create -p $PROJECT -- --resources.source.2.type=directory --resources.source.2.config.directory=$RESOURCES_D
+rd projects create -p $PROJECT -- \
+  --project.description="manage Anvils online" \
+  --project.nodeCache.enabled=false \
+  --resources.source.2.type=directory \
+  --resources.source.2.config.directory=$RESOURCES_D \
+  --project.globals.catalog.categories.files=$CATALOG_D
 
-RDECK_NAME=$(awk -F= "/framework.server.name/ {print \$2}" /etc/rundeck/framework.properties)
-RDECK_HOST=$(awk -F= "/framework.server.hostname/ {print \$2}" /etc/rundeck/framework.properties)
+RDECK_NAME=$(awk -F= '/framework.server.name/ {print $2}' /etc/rundeck/framework.properties)
+RDECK_HOST=$(awk -F= '/framework.server.hostname/ {print $2}' /etc/rundeck/framework.properties)
 
 
 cat > $ETC/resources.xml <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
 
 <project>    
-  <node name="$RDECK_NAME" hostname="$RDECK_HOST" username="rundeck"
+  <node name="${RDECK_NAME// /}" hostname="${RDECK_HOST// /}" username="rundeck"
       description="Rundeck server node." tags=""
       osFamily="unix" osName="$(uname -s)" osArch="$(uname -m)" osVersion="$(uname -r)"
       >
@@ -120,9 +142,10 @@ cat > $ETC/resources.xml <<EOF
 </project>
 EOF
 
+echo "List the nodes matching filter, tags: anvils ..."
+rd nodes list --filter "tags: anvils" -% "%nodename - %description"
 
-
-# Add the Anvils project level ACLs
+# Add the project level ACLs
 echo "Loading project level ACL policy files ..."
 for acl in /vagrant/aclpolicy/project/*.aclpolicy
 do
@@ -152,6 +175,25 @@ done
 
 # List the jobs
 rd jobs list -p $PROJECT
+
+# Create a readme
+readme=$(mktemp -t "readme.XXXX")
+cat >$readme <<EOF
+<img width="300" 
+     src="http://vignette1.wikia.nocookie.net/clubpenguin/images/c/cf/Smoothie_Smash_Anvil.png/revision/latest?cb=20120909235841"/>
+
+Find useful resources:
+
+* here,
+* here,
+* and here
+
+If you have to escalate, file a ticket at the ticket desk.
+EOF
+rd projects readme put --file $readme --project $PROJECT
+# Create a motd 
+rd projects readme put --motd --text "Watch your feet at all times!" --project $PROJECT
+
 
 
 exit $?

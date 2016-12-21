@@ -1,6 +1,0 @@
-description: 'Given user in group ".*" and for resource, then allow action [read].'
-for:
-  resource:
-    - allow: [read]
-by:
-  group: '.*'

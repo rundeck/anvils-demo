@@ -1,53 +1,131 @@
 <joblist>
   <job>
-    <schedule>
-      <time hour='00' seconds='0' minute='00' />
-      <weekday day='*' />
-      <month month='*' />
-      <year year='*' />
-    </schedule>    
+    <context>
+      <options preserveOrder='true'>
+        <option enforcedvalues='true' name='catalog' required='true' value='partner' values='inventory,partner,shipping-rates'>
+          <description>catalog name</description>
+        </option>
+      </options>
+    </context>
+    <description><![CDATA[rebuild the catalog data
+
+---
+
+Your job description can be your Job's runbook.
+Any text after the `---` on the thirdline is formated using [markdeep](https://casual-effects.com/markdeep).
+
+Write a Runbook for your job to explain important things to your users.
+Your Runbook can state the business purpose for your job,
+who its stakeholders are, and what to do when things go wrong.
+
+Sometimes it is good to illustrate the Job's process flow. 
+
+*************************************************************************************************
+*                                      .                                                        *
+*   .---------.                       / \                                                       *
+*  |   START   |                     /   \        .-+-------+-.      ___________                *
+*   '----+----'    .-------.    A   /     \   B   | |COMPLEX| |     /           \      .-.      *
+*        |        |   END   |<-----+CHOICE +----->| |       | +--->+ PREPARATION +--->| X |     *
+*        v         '-------'        \     /       | |PROCESS| |     \___________/      '-'      *
+*    .---------.                     \   /        '-+---+---+-'                                 *
+*   /  INPUT  /                       \ /                                                       *
+*  '-----+---'                         '                                                        *
+*        |                             ^                                                        *
+*        v                             |                                                        *
+*  .-----------.                 .-----+-----.        .-.                                       *
+*  |  PROCESS  +---------------->|  PROCESS  |<------+ X |                                      *
+*  '-----------'                 '-----------'        '-'                                       *
+*************************************************************************************************
+
+Buidling on markdown syntax, [use markdeep for more advanced formatting features](https://casual-effects.com/markdeep/features.md.html).
+
+
+For instance, I like how markdeep lets you create a table:
+
+ Maine | Iowa | Colorado 
+-------|------|----------
+   1   |  4   |   10
+  ME   |  IA  |   CO
+ Blue  | Red  | Brown
+  [Escalation chart]
+  
+Use your imagination. Keep your users informed! 
+
+Your documentation will shine my friend! 
+]]></description>
+    <dispatch>
+      <excludePrecedence>true</excludePrecedence>
+      <keepgoing>true</keepgoing>
+      <rankOrder>ascending</rankOrder>
+      <threadcount>1</threadcount>
+    </dispatch>
+    <executionEnabled>true</executionEnabled>
+    <group>catalog</group>
     <loglevel>INFO</loglevel>
+    <name>nightly_catalog_rebuild</name>
+    <nodeFilterEditable>true</nodeFilterEditable>
+    <nodefilters>
+      <filter>tags: db</filter>
+    </nodefilters>
+    <nodesSelectedByDefault>true</nodesSelectedByDefault>
+    <notification>
+      <onfailure>
+        <email recipients='bizops@anvils.com' />
+      </onfailure>
+      <onsuccess>
+        <email recipients='bizops@anvils.com' />
+      </onsuccess>
+    </notification>
+    <schedule>
+      <month month='*' />
+      <time hour='00' minute='00' seconds='0' />
+      <weekday day='*' />
+      <year year='*' />
+    </schedule>
+    <scheduleEnabled>true</scheduleEnabled>
     <sequence keepgoing='false' strategy='node-first'>
       <command>
-        <scriptargs>${option.catalog}</scriptargs>
+        <description>initialize-data</description>
+        <node-step-plugin type='copyfile'>
+          <configuration>
+            <entry key='destinationPath' value='${node.anvils:catalog.categories.files}/${option.catalog}.data' />
+            <entry key='echo' value='true' />
+            <entry key='sourcePath' value='${globals.catalog.categories.files}/${option.catalog}.data' />
+          </configuration>
+        </node-step-plugin>
+      </command>
+      <command>
+        <description>generate-data</description>
         <script><![CDATA[#!/bin/bash
 set -eu
 CATALOG=$1
-echo "# Rebuild catalog: $CATALOG"
-echo ""
-echo "- customer: ${RD_NODE_ANVILS_CUSTOMER}"
-echo "- location: ${RD_NODE_ANVILS_LOCATION}"
-echo "- database: ${RD_NODE_NAME:-}"
-echo "Completed."
+DATAFILE=$2
+
+echo "Rebuilding catalog: $CATALOG ..."
+
+cat >${DATAFILE} <<EOF
+
+- catalog: $CATALOG
+- customer: ${RD_NODE_ANVILS_CUSTOMER}"
+- location: ${RD_NODE_ANVILS_LOCATION}"
+- database: ${RD_NODE_NAME:-}"
+EOF
+
+cat $DATAFILE
+
 exit $?]]></script>
-        </command>
-      </sequence>
-    <nodefilters excludeprecedence="true"> 
-       <include> 
-        <tags>db</tags> 
-      </include> 
-    </nodefilters>  
-    <dispatch> 
-     <threadcount>1</threadcount>  
-     <keepgoing>true</keepgoing> 
-   </dispatch>        
-      <description>rebuild the catalog data</description>
-      <name>nightly_catalog_rebuild</name>
-      <context>
-        <options>
-          <option required='true' name='catalog' enforcedvalues='true' value='partner' values='partner,shipping-rates,inventory'>
-            <description>catalog name</description>
-          </option>
-        </options>
-      </context>
-      <notification>
-        <onfailure>
-          <email recipients='bizops@anvils.com' />
-        </onfailure>
-        <onsuccess>
-          <email recipients='bizops@anvils.com' />
-        </onsuccess>
-      </notification>    
-      <group>catalog</group>
-    </job>
-  </joblist>
+        <scriptargs>${option.catalog} ${node.anvils:catalog.categories.files}/${option.catalog}.data</scriptargs>
+      </command>
+      <command>
+        <description>data-exists?</description>
+        <node-step-plugin type='nixy-waitfor-file-exists'>
+          <configuration>
+            <entry key='file' value='${node.anvils:catalog.categories.files}/${option.catalog}.data' />
+            <entry key='interval' value='5' />
+            <entry key='maxtry' value='3' />
+          </configuration>
+        </node-step-plugin>
+      </command>
+    </sequence>
+  </job>
+</joblist>

@@ -5,18 +5,9 @@ set -eu
 
 # Software install
 # ----------------
-#
-# Utilities
-# Bootstrap a fedora repo to get lighttpd
-
-if ! rpm -q epel-release
-then
-	rpm -Uvh https://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
-fi	
-yum install -y httpd xmlstarlet
 
 # Apache httpd
-# ------------
+yum install -y httpd
 
 # Create directory for webdav lock files
 mkdir -p /var/lock/apache

@@ -208,22 +208,20 @@ See the user guide about [custom command and script execution with the script-pl
 ### Jobs
 
 The rundeck instance will come up with the following demo jobs 
-already loaded. All jobs are organized under a common group called "anvils".
+already loaded. All jobs are organized under a few job groups:
 
-- anvils/Promote - 'promote the packages'
-- anvils/web/Restart - 'restart the web servers'
-- anvils/Status - 'Check the status of anvils'
-- anvils/nightly_catalog_rebuild - 'rebuild the catalog data'
-- anvils/web/start - 'start the web servers'
-- anvils/web/stop - 'stop the web servers'
+- catalog/nightly_catalog_rebuild - 'rebuild the catalog data'
+- release/Promote - 'promote the packages'
+- web/web/Restart - 'restart the web servers'
+- web/Status - 'Check the status of anvils'
+- web/start - 'start the web servers'
+- web/stop - 'stop the web servers'
 
 Each job is defined in its own file using the 
 [XML format](http://rundeck.org/docs/manpages/man5/job-v20.html). 
 [YAML](http://rundeck.org/docs/manpages/man5/job-yaml-v12.html) could also have been used as an alternative syntax. Rundeck jobs can call
-scripts stored in a web server by specifying its location with a 
+scripts written in line or stored in a web server by specifying its location with a 
 [scripturl](http://rundeck.org/docs/manpages/man5/job-v20.html#script-sequence-step).
-Storing scripts outside of a rundeck job, faciliates better collaboration
-and configuration management.
 
 Using job groups is optional but is often helpful to organize procedures
 and simplify setting up ACL policies.
