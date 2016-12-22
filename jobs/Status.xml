@@ -5,7 +5,7 @@
     <sequence keepgoing='true' strategy='node-first'>
       <command>
         <description>Check pid</description>
-        <node-step-plugin type='file-util:contains'>
+        <node-step-plugin type='nixy-file-contains'>
           <configuration>
             <entry key='file' value='${option.dir}/pid' />
             <entry key='string' value='&apos;^[0-9]*$&apos;' />
