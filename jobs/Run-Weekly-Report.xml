@@ -1,0 +1,66 @@
+<joblist>
+  <job>
+    <context>
+      <options preserveOrder='true'>
+        <option enforcedvalues='true' name='catalog' value='inventory' values='inventory,partner,shipping-rates' />
+        <option name='start-date' required='true'>
+          <dateFormat />
+          <isDate>true</isDate>
+        </option>
+        <option name='end-date' required='true'>
+          <dateFormat />
+          <isDate>true</isDate>
+        </option>
+      </options>
+    </context>
+    <description>Run a weekly business report.</description>
+    <executionEnabled>true</executionEnabled>
+    <group>catalog</group>
+    <loglevel>INFO</loglevel>
+    <name>Run-Weekly-Report</name>
+    <nodeFilterEditable>false</nodeFilterEditable>
+    <scheduleEnabled>true</scheduleEnabled>
+    <sequence keepgoing='false' strategy='node-first'>
+      <command>
+        <description>generate-report</description>
+        <script><![CDATA[#!/usr/bin/env bash
+set -eu
+declare -r CATALOG=$1 START_DATE=$2 END_DATE=$3
+declare -a days=( ) 
+declare -i total=0
+for d in {1..7}; do
+  days[$d]=$RANDOM
+  (( total+=$RANDOM ))
+done
+
+printf "+------------------------+\n"
+printf "| %22s |\n" "$CATALOG sales"
+printf "+------------------------+\n"
+printf "|  start: %14s |\n" "${START_DATE%%T*}"
+printf "|    end: %14s |\n" "${END_DATE%%T*}"
+printf "+------------------------+\n"
+printf "| %22s |\n" "Weekly total: \$$total"
+cat <<EOF
++------------------------+
+|    daily breakdown     |
++------------------------+
+| day |            sales |
++-----+------------------+
+EOF
+for n in ${!days[@]}
+do
+  printf "| %-4d|%17s |\n" "$n" "\$${days[$n]}"
+done
+cat <<EOF
++-----+------------------+
+EOF]]></script>
+        <scriptargs>${option.catalog} ${option.start-date} ${option.end-date}</scriptargs>
+      </command>
+      <pluginConfig>
+        <WorkflowStrategy>
+          <node-first />
+        </WorkflowStrategy>
+      </pluginConfig>
+    </sequence>
+  </job>
+</joblist>
