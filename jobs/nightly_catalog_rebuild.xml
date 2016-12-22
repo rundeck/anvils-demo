@@ -62,7 +62,7 @@ Your documentation will shine my friend!
     <executionEnabled>true</executionEnabled>
     <group>catalog</group>
     <loglevel>INFO</loglevel>
-    <name>nightly_catalog_rebuild</name>
+    <name>Nightly-Rebuild</name>
     <nodeFilterEditable>true</nodeFilterEditable>
     <nodefilters>
       <filter>tags: db</filter>
