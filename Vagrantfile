@@ -13,10 +13,15 @@ Vagrant.configure("2") do |config|
   #  vb.cpus = "2"
   #  vb.memory = "4096"
   #end
-  
+
   config.vm.define :rundeck do |rundeck|
     rundeck.vm.hostname = "rundeck.anvils.com"
     rundeck.vm.network :private_network, ip: "#{RDIP}"
+
+    ### uncomment for work around for issue#20 ######
+    #rundeck.vm.provision :shell, inline: "yum install epel-release -y"
+    ####################
+
     rundeck.vm.provision :shell, :path => "install-rundeck.sh", :args => "#{RDIP} #{RUNDECK_YUM_REPO}"
     rundeck.vm.provision :shell, :path => "install-httpd.sh"
     rundeck.vm.provision :shell, :path => "add-project.sh", :args => "#{PROJECT}"
