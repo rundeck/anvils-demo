@@ -8,7 +8,7 @@
         <node-step-plugin type='nixy-file-contains'>
           <configuration>
             <entry key='file' value='${option.dir}/pid' />
-            <entry key='string' value='&apos;^[0-9]*$&apos;' />
+            <entry key='pattern' value='&apos;^[0-9]*$&apos;' />
           </configuration>
         </node-step-plugin>
       </command>
