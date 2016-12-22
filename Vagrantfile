@@ -8,7 +8,12 @@ Vagrant.configure("2") do |config|
   config.ssh.insert_key = false
   config.vm.box = "bento/centos-6.7"
 
-
+  # uncomment for faster performance
+  #config.vm.provider "virtualbox" do |vb|
+  #  vb.cpus = "2"
+  #  vb.memory = "4096"
+  #end
+  
   config.vm.define :rundeck do |rundeck|
     rundeck.vm.hostname = "rundeck.anvils.com"
     rundeck.vm.network :private_network, ip: "#{RDIP}"
