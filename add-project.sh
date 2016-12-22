@@ -13,10 +13,11 @@ export RD_URL=$(awk -F= "/grails.serverURL/ {print \$2}" /etc/rundeck/rundeck-co
 export RD_USER=admin RD_PASSWORD=admin
 export RD_PROJECT=$PROJECT
 
-# Create a directory for the resource model
+# Initialize a new yaml
 ETC=/var/rundeck/projects/${PROJECT}/etc
-RESOURCES_D=$ETC/resources.d
-mkdir -p "$RESOURCES_D"
+mkdir -p $ETC
+ > $ETC/anvils-nodes.yaml
+
 CATALOG_D=/var/rundeck/$PROJECT/catalog
 mkdir -p $CATALOG_D
 for category in {partner,inventory,shipping-rates}
@@ -71,7 +72,7 @@ do
     db) ICON=hdd ;;
     www) ICON=globe ;;
   esac 
-  cat > $RESOURCES_D/$NAME.yaml <<EOF
+  cat >> $ETC/anvils-nodes.yaml <<EOF
 ${NAME}.anvils.com:
  name: ${NAME}.anvils.com
  tags: $ROLE,anvils
@@ -88,11 +89,12 @@ ${NAME}.anvils.com:
  "anvils:customer": acme.com
  "anvils:catalog.categories.files": /home/$NAME/catalog
  "ui:icon:name": "glyphicon-$ICON"
+---
 EOF
     echo "Added node: ${NAME} [role: $ROLE]."
 done
 
-chown -R rundeck:rundeck "$RESOURCES_D"
+chown -R rundeck:rundeck "$ETC"
 
 # List the keys stored for this project.
 rd keys list --path acme/${PROJECT}
@@ -118,8 +120,10 @@ chown -R rundeck:rundeck /var/rundeck
 rd projects create -p $PROJECT -- \
   --project.description="manage Anvils online" \
   --project.nodeCache.enabled=false \
-  --resources.source.2.type=directory \
-  --resources.source.2.config.directory=$RESOURCES_D \
+  --resources.source.2.config.file=$ETC/anvils-nodes.yaml \
+  --resources.source.2.config.generateFileAutomatically=false \
+  --resources.source.2.config.includeServerNode=false \
+  --resources.source.2.type=file \
   --project.globals.catalog.categories.files=$CATALOG_D
 
 RDECK_NAME=$(awk -F= '/framework.server.name/ {print $2}' /etc/rundeck/framework.properties)
