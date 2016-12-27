@@ -1,0 +1,38 @@
+<joblist>   
+  <job> 
+   <name>stop</name>  
+   <description>stop the app servers -- shows how to use a step error handler, and node rank ordering</description>  
+   <loglevel>INFO</loglevel>  
+   <group>ops/app</group>  
+   <context> 
+    <options> 
+       <option name="dir" enforcedvalues="true" required="true" 
+         values='anvils' default='anvils'/>               
+       </options> 
+     </context>  
+    <sequence keepgoing='false' strategy='node-first'>
+      <command>
+        <node-step-plugin type='com.anvils.springboot.stop'>
+          <configuration>
+            <entry key='APP_NAME' value='anvils' />
+            <entry key='JARFILE' value='anvils.jar' />
+            <entry key='conf_folder' value='anvils/conf' />
+          </configuration>
+        </node-step-plugin>
+      </command>
+    </sequence>
+ 
+     <nodefilters excludeprecedence="true"> 
+       <include> 
+        <tags>app</tags> 
+      </include> 
+    </nodefilters>  
+    <dispatch> 
+      <excludePrecedence>true</excludePrecedence>
+      <keepgoing>true</keepgoing>
+      <rankAttribute>anvils:server-pool-id</rankAttribute>
+      <rankOrder>descending</rankOrder>
+      <threadcount>1</threadcount>
+   </dispatch> 
+ </job>
+</joblist>

@@ -1,0 +1,35 @@
+<joblist>
+  <job>
+    <loglevel>INFO</loglevel>
+    <multipleExecutions>true</multipleExecutions>
+    <sequence keepgoing='false' strategy='node-first'>
+      <command>
+        <node-step-plugin type='com.anvils.springboot.status'>
+          <configuration>
+            <entry key='APP_NAME' value='anvils' />
+            <entry key='JARFILE' value='anvils.jar' />
+            <entry key='conf_folder' value='anvils/conf' />
+          </configuration>
+        </node-step-plugin>
+      </command>
+    </sequence>
+
+    <description>Check the status of anvils -- Shows step error handler, </description>
+    <name>status</name>
+    <context>
+      <options>
+        <option name='dir' values='anvils' enforcedvalues='true' required='true' />
+      </options>
+    </context>
+    <dispatch>
+      <threadcount>1</threadcount>
+      <keepgoing>true</keepgoing>
+      <excludePrecedence>true</excludePrecedence>
+      <rankOrder>ascending</rankOrder>
+    </dispatch>
+    <nodefilters>
+      <filter>tags: app</filter>
+    </nodefilters>
+    <group>ops/app</group>
+  </job>
+</joblist>

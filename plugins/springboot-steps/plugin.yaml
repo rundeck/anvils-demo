@@ -1,0 +1,97 @@
+name: springboot
+version: 1.0.0
+rundeckPluginVersion: 1.2
+author: alexh
+date: Tue Dec 27 2016
+providers:
+  - name: com.anvils.springboot.start
+    service: RemoteScriptNodeStep
+    title: springboot:start
+    description: 'start the springboot service'
+    plugin-type: script
+    script-interpreter: /bin/bash
+    script-file: ctl.sh
+    script-args: start
+    config:
+      - type: String
+        name: conf_folder
+        title: CONF_FOLDER
+        description: 'the springboot $CONF_FOLDER'
+      - type: String
+        name: APP_NAME
+        title: APP_NAME
+      - type: String
+        name: JARFILE
+        title: JARFILE
+  - name: com.anvils.springboot.stop
+    service: RemoteScriptNodeStep
+    title: springboot:stop
+    description: 'stop the springboot service'
+    plugin-type: script
+    script-interpreter: /bin/bash
+    script-file: ctl.sh
+    script-args: stop
+    config:
+      - type: String
+        name: conf_folder
+        title: CONF_FOLDER
+        description: 'the springboot $CONF_FOLDER'
+      - type: String
+        name: APP_NAME
+        title: APP_NAME
+      - type: String
+        name: JARFILE
+        title: JARFILE
+  - name: com.anvils.springboot.status
+    service: RemoteScriptNodeStep
+    title: springboot:status
+    description: 'check the status'
+    plugin-type: script
+    script-interpreter: /bin/bash
+    script-file: ctl.sh
+    script-args: status
+    config:
+      - type: String
+        name: conf_folder
+        title: CONF_FOLDER
+        description: 'the springboot $CONF_FOLDER'
+      - type: String
+        name: APP_NAME
+        title: APP_NAME
+      - type: String
+        name: JARFILE
+        title: JARFILE
+  - name: com.anvils.springboot.restart
+    service: RemoteScriptNodeStep
+    title: springboot:status
+    description: 'restart the service'
+    plugin-type: script
+    script-interpreter: /bin/bash
+    script-file: ctl.sh
+    script-args: restart
+    config:
+      - type: String
+        name: conf_folder
+        title: CONF_FOLDER
+        description: 'the springboot $CONF_FOLDER'
+      - type: String
+        name: APP_NAME
+        title: APP_NAME
+      - type: String
+        name: JARFILE
+        title: JARFILE
+  - name: com.anvils.springboot.deploy-jar
+    service: RemoteScriptNodeStep
+    title: springboot:deploy-jar
+    description: 'deploy the springboot jar'
+    plugin-type: script
+    script-interpreter: /bin/bash
+    script-file: ctl.sh
+    script-args: deploy-jar
+    config:
+      - type: String
+        name: APP_NAME
+        title: APP_NAME
+      - type: String
+        name: JARFILE
+        title: JARFILE
