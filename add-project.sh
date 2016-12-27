@@ -28,6 +28,11 @@ do
 EOF
 done
 
+catalog_pw=$(mktemp catalog.password.XXXX)
+echo "anvils" > "$catalog_pw"
+rd keys create \
+    --path "acme/anvils/db/catalog.password" --type password --file "$catalog_pw"
+
 # Fictitious hosts that mascarade as nodes
 RESOURCES=( www{1,2} app{1,2} db1 )
 
@@ -161,7 +166,7 @@ rd projects acls list
 
 # Run a local ad-hoc command for sanity checking.
 echo "Running a adhoc command across the nodes tagged for anvils ..."
-rd adhoc -p $PROJECT --follow --filter 'tags: anvils' -- whoami
+rd adhoc -p $PROJECT --follow --filter 'tags: anvils' -- whoami \&\& echo " -- \${node.description}"
 
 # Add jobs, scripts and options
 # -----------------------------
@@ -172,7 +177,7 @@ chown -R apache:rundeck /var/www/html/$PROJECT/options
 
 # Load the jobs
 echo "Loading jobs for $PROJECT project ..."
-for job in /vagrant/jobs/*.xml
+for job in $(find /vagrant/jobs -name \*.xml)
 do
 	rd jobs load --file "$job" --project $PROJECT
 done
@@ -182,18 +187,44 @@ rd jobs list -p $PROJECT
 
 # Create a readme
 readme=$(mktemp -t "readme.XXXX")
-cat >$readme <<EOF
+cat >$readme<<EOF
+
+__Welcome!__
+
+This project is used to manage the routine operations for "Anvils Online", 
+the one place stop for all you anvils buying needs. 
+
+Use the top navigation bar to go to [Jobs](/project/anvils/jobs), 
+[Nodes](/project/anvils/nodes), and [Activity](/project/anvils/activity).
+
 <img width="300" 
      src="http://vignette1.wikia.nocookie.net/clubpenguin/images/c/cf/Smoothie_Smash_Anvil.png/revision/latest?cb=20120909235841"/>
 
-Find useful resources:
+### Jobs
 
-* here,
-* here,
-* and here
+Jobs are organized into several areas according to role: 
 
-If you have to escalate, file a ticket at the ticket desk.
+* [catalog](/project/anvils/jobs/catalog): Nightly and adhoc jobs to manage the catalog database
+* [ops](/project/anvils/jobs/ops): Restart, status actions for the web and app tiers
+* [release](/project/anvils/jobs/release): Promote the software to production
+
+### Nodes
+
+Nodes are tagged according to role.
+
+* [anvils](/project/anvils/nodes?filter=tags%3A anvils): All the nodes used by the anvils site
+* [app](/project/anvils/nodes?filter=tags%3A app): the app servers
+* [db](/project/anvils/nodes?filter=tags%3A db): the database server
+* [www](/project/anvils/nodes?filter=tags%3A www): the web servers
+
+
+Nodes can use icons for extra effect [glyphicons](http://glyphicons.bootstrapcheatsheets.com/). 
+For example, you can use a different icon for your node by declaring an attribute for it
+(eg, for the "app" nodes, declare the shopping car icon: `"ui:icon:name": glyphicon-shopping-cart`).
+
+
 EOF
+
 rd projects readme put --file $readme --project $PROJECT
 # Create a motd 
 rd projects readme put --motd --text "Watch your feet at all times!" --project $PROJECT

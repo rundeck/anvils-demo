@@ -23,7 +23,7 @@ yum -y install coreutils
 #
 # JRE
 #
-yum -y install java-1.8.0
+yum -y install java-1.8.0 zip
 
 #
 # Rundeck server and CLI
@@ -51,6 +51,14 @@ chmod 755 ~rundeck
 echo "Installing plugins ..."
 LIBEXT=/var/lib/rundeck/libext # Plugin directory
 
+# springboot
+[[ ! -f $LIBEXT/springboot-steps.zip ]] && {
+    (cd /vagrant/plugins; zip -r $LIBEXT/springboot-steps.zip springboot-steps)
+}
+# mysql
+[[ ! -f $LIBEXT/mysql-sqlscript-step.zip ]] && {
+    (cd /vagrant/plugins; zip -r $LIBEXT/mysql-sqlscript-step.zip mysql-sqlscript-step)    
+}
 # Hipchat
 [[ ! -f $LIBEXT/rundeck-hipchat-plugin-1.0.0.jar ]] && {
     cp /vagrant/rundeck-hipchat-plugin-1.0.0.jar $LIBEXT
@@ -103,6 +111,8 @@ dev:dev,dev,user,anvils
 ops:ops,ops,user,anvils
 releng:releng,releng,user,anvils
 EOF
+
+echo "export RD_URL=http://$RDIP:4440 RD_USER=admin RD_PASSWORD=admin RD_PROJECT=anvils" >>  ~rundeck/.bash_profile
 
 #
 # Disable the firewall so we can easily access it from the host
