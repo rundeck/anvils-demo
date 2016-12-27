@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+set -eu
+
+declare -r DB_USER=$1 DB_NAME=$2
+
+sql_script=$(mktemp -t "sql.XXXX")
+trap 'rm $sql_script' EXIT
+
+echo "$RD_CONFIG_SQL_SCRIPT" > $sql_script
+
+if [[ $RD_CONFIG_DRYRUN == "true" ]]
+then
+	echo "[dryrun] mysql -u $DB_USER -p **** $DB_NAME"
+	while read line
+	do 
+		echo "[dryrun] > $line"
+	done < "$sql_script"
+	exit 0
+fi
+
+
+mysql -u $DB_USER -p $RD_CONFIG_DATABASE_PASSWORD $DB_NAME < $sql_script
+exit $?

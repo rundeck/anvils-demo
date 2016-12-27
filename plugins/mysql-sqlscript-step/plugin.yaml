@@ -1,0 +1,49 @@
+name: Sql Script Step
+rundeckPluginVersion: 1.2
+author: Alex Honor
+date: 12/26/2016
+version: 1.0.0
+providers:
+    - name: com.anvils.mysql.sqlscript
+      service: WorkflowNodeStep
+      title: mysql-sqlscript
+      description: Executes the SQL script on a Mysql database.
+      plugin-type: script
+      script-interpreter: /bin/bash
+      script-file: exec
+      script-args: ${config.database_username} ${config.database_name}
+      config:
+        - name: sql_script
+          title: SQL
+          type: String
+          required: true
+          description: the sql script to execute
+          renderingOptions:
+            displayType: CODE
+            codeSyntaxMode: sql
+        - name: database_name
+          title: Database name
+          type: String
+          required: true
+          description: the database name
+        - name: database_username
+          title: Username
+          type: String
+          required: true
+          description: the database username
+        - name: database_password
+          title: Password
+          type: String
+          required: true
+          description: "Storage path for database password. Can reference the database-password-storage-path node attribute."
+          scope: Instance
+          renderingOptions:
+            selectionAccessor: "STORAGE_PATH"
+            valueConversion: "STORAGE_PATH_AUTOMATIC_READ"
+            storage-path-root: "keys"
+            instance-scope-node-attribute: "database-password-storage-path"
+        - name: dryrun
+          title: Dryun?
+          type: Boolean
+          required: true
+          description: show the command but do not run
