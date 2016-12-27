@@ -2,7 +2,7 @@ description: 'Given user in group "ops" and for job matching "web/.*", then allo
 for:
   job:
     - match:
-        group: 'web'
+        group: 'ops/web'
         name: '.*'
       allow: [run,read]
 by:

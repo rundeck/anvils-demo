@@ -3,4 +3,4 @@ for:
   node:
     - allow: [read]
 by:
-  group: '.*'
+  group: anvils

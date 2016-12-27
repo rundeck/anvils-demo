@@ -1,10 +1,9 @@
-description: 'Given user in group "dev" and for job matching ".*/Status", then allow [read,run].'
+description: 'Allow dev users [run,read] for job, ops/web/status'
 for:
   job:
     - match:
-        group: '.*'
-        name: 'Status'
+        group: ops/web
+        name: status
       allow: [run,read]
 by:
   group: dev
-# dev/jobs/allow/web_Status.aclpolicy

@@ -9,7 +9,7 @@ description: 'Allow to read ssh keys'
 context:
   application: rundeck
 by:
-  group: [dev,releng,ops]
+  group: anvils
 
 ---
 for:
@@ -22,4 +22,4 @@ description: 'Allow to read ssh keys'
 context:
   application: rundeck
 by:
-  group: [dev,releng,ops]
+  group: anvils

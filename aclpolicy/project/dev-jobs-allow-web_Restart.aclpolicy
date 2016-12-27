@@ -1,9 +1,9 @@
-description: 'Given user in group "dev" and for job matching ".*/Restart", then allow [read].'
+description: 'Given user in group "dev" and for job matching ".*/restart", then allow [read].'
 for:
   job:
     - match:
         group: '.*'
-        name: 'Restart'
+        name: 'restart'
       allow: [read]
 by:
   group: dev

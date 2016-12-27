@@ -3,4 +3,4 @@ for:
   resource:
     - allow: [read]
 by:
-  group: '.*'
+  group: anvils
