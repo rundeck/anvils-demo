@@ -1,0 +1,68 @@
+<joblist>   
+  <job> 
+   <name>stop</name>  
+   <description>stop the web servers -- shows how to use a step error handler, and node rank ordering</description>  
+   <loglevel>INFO</loglevel>  
+   <group>ops/web</group>  
+   <context> 
+    <options> 
+      <option name="method" enforcedvalues="true"
+       required="true" default="anvils:stop"
+       values='anvils:stop,anvils:stop --force'/> 
+       <option name="dir" enforcedvalues="true" required="true" 
+         values='anvils' default='anvils'/>               
+       </options> 
+     </context>  
+     <sequence threadcount="1" keepgoing="false" strategy="node-first"> 
+       <command> 
+        <script><![CDATA[#!/usr/bin/env bash
+#/ usage: $0 ?dir? ?method? 
+
+set -eu
+
+(( $# != 2 )) && {
+  grep '^#/ usage:' <"$0" | cut -c4- >&2
+  exit 2
+}
+DIR=$1
+METHOD=$2
+
+if [[ -f "$DIR/pid" ]]
+then  
+  PID=$(< "$DIR/pid")
+  echo "kill $PID"
+  rm -f $DIR/pid
+  echo "- Web stopped (pid=${PID}) using method: $METHOD" | tee -a $DIR/log
+fi ]]></script>
+         <scriptargs>${option.dir} ${option.method}</scriptargs> 
+         <errorhandler keepgoingOnSuccess='true'>
+        <script><![CDATA[#!/usr/bin/env bash
+#/ usage: $0 ?dir?
+
+set -eu
+
+(( $# != 1 )) && {
+  grep '^#/ usage:' <"$0" | cut -c4- >&2
+  exit 2  
+}
+DIR=$1
+
+echo 'Web killed!']]></script>
+          <scriptargs>${option.dir}</scriptargs>              
+         </errorhandler>
+       </command> 
+     </sequence>  
+     <nodefilters excludeprecedence="true"> 
+       <include> 
+        <tags>www</tags> 
+      </include> 
+    </nodefilters>  
+    <dispatch> 
+      <excludePrecedence>true</excludePrecedence>
+      <keepgoing>true</keepgoing>
+      <rankAttribute>anvils:server-pool-id</rankAttribute>
+      <rankOrder>descending</rankOrder>
+      <threadcount>1</threadcount>
+   </dispatch> 
+ </job>
+</joblist>

@@ -1,0 +1,64 @@
+<joblist>
+  <job>
+    <loglevel>INFO</loglevel>
+    <multipleExecutions>true</multipleExecutions>
+    <sequence keepgoing='true' strategy='node-first'>
+      <command>
+        <description>Check pid</description>
+        <node-step-plugin type='nixy-file-contains'>
+          <configuration>
+            <entry key='file' value='${option.dir}/pid' />
+            <entry key='pattern' value='&apos;^[0-9]*$&apos;' />
+          </configuration>
+        </node-step-plugin>
+      </command>
+      <command>
+        <script><![CDATA[#!/usr/bin/env bash
+#/ usage: $0 ?dir?
+
+set -eu
+
+(( $# != 1 )) && {
+  grep '^#/ usage:' <"$0" | cut -c4- >&2
+  exit 2  
+}
+DIR=$1
+[[ ! -f $DIR/pid ]] && { echo DOWN; exit 1; }
+
+PID=$(< $DIR/pid)
+
+if [[ -z "${PID:-}" ]]
+then
+  echo "DOWN"; exit 1;
+else 
+  echo "RUNNING"
+fi  
+
+exit $?
+        ]]></script>
+        <errorhandler keepgoingOnSuccess='true'>
+          <exec>echo "Continuing..."</exec>
+        </errorhandler>
+        <description>Process status</description>
+        <scriptargs>${option.dir}</scriptargs>
+      </command>
+    </sequence>
+    <description>Check the status of anvils -- Shows step error handler, </description>
+    <name>status</name>
+    <context>
+      <options>
+        <option name='dir' values='anvils' enforcedvalues='true' required='true' />
+      </options>
+    </context>
+    <dispatch>
+      <threadcount>1</threadcount>
+      <keepgoing>true</keepgoing>
+      <excludePrecedence>true</excludePrecedence>
+      <rankOrder>ascending</rankOrder>
+    </dispatch>
+    <nodefilters>
+      <filter>tags: www</filter>
+    </nodefilters>
+    <group>ops/web</group>
+  </job>
+</joblist>
