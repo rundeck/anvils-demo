@@ -13,7 +13,7 @@
         </option>
       </options>
     </context>
-    <description>Run a weekly business report.</description>
+    <description>Run a weekly business report -- Uses date picker UI</description>
     <executionEnabled>true</executionEnabled>
     <group>catalog</group>
     <loglevel>INFO</loglevel>

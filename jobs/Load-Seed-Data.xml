@@ -1,0 +1,39 @@
+<joblist>
+  <job>
+    <description>Load the standing catalog data -- uses plugin to execute sql script</description>
+    <dispatch>
+      <excludePrecedence>true</excludePrecedence>
+      <keepgoing>false</keepgoing>
+      <rankOrder>ascending</rankOrder>
+      <threadcount>1</threadcount>
+    </dispatch>
+    <executionEnabled>true</executionEnabled>
+    <group>catalog</group>
+    <loglevel>INFO</loglevel>
+    <name>Load-Seed-Data</name>
+    <nodeFilterEditable>false</nodeFilterEditable>
+    <nodefilters>
+      <filter>tags: db</filter>
+    </nodefilters>
+    <nodesSelectedByDefault>true</nodesSelectedByDefault>
+    <scheduleEnabled>true</scheduleEnabled>
+    <sequence keepgoing='false' strategy='node-first'>
+      <command>
+        <node-step-plugin type='com.anvils.mysql.sqlscript'>
+          <configuration>
+            <entry key='database_name' value='Anvils_Catalog_DB' />
+            <entry key='database_password' value='acme/anvils/db/catalog.password' />
+            <entry key='database_username' value='anvils' />
+            <entry key='dryrun' value='true' />            
+            <entry key='sql_script' value='show tables;' />
+          </configuration>
+        </node-step-plugin>
+      </command>
+      <pluginConfig>
+        <WorkflowStrategy>
+          <node-first />
+        </WorkflowStrategy>
+      </pluginConfig>
+    </sequence>
+  </job>
+</joblist>

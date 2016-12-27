@@ -27,7 +27,7 @@ printf "Completed promoting ${#PACKAGELIST[*]} packages.\n"
 exit $?]]></script>
       </command>
     </sequence>
-    <description>promote the packages to the ops repository.</description>
+    <description>promote software packages to the ops repository -- shows dynamic cascading options</description>
     <name>Promote</name>
     <context>
       <options>
