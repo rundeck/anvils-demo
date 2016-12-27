@@ -1,0 +1,43 @@
+<joblist>
+  <job>
+    <context>
+      <options preserveOrder='true'>
+        <option name='dir' value='anvils' />
+      </options>
+    </context>
+    <description>Restart the whole web/app stack</description>
+    <executionEnabled>true</executionEnabled>
+    <group>ops</group>
+    <loglevel>INFO</loglevel>
+    <name>Stack-Restart</name>
+    <nodeFilterEditable>false</nodeFilterEditable>
+    <scheduleEnabled>true</scheduleEnabled>
+    <sequence keepgoing='false' strategy='node-first'>
+      <command>
+        <jobref group='ops/web' name='stop'>
+          <arg line='-dir ${option.dir} -method anvils:stop' />
+        </jobref>
+      </command>
+      <command>
+        <jobref group='ops/app' name='stop'>
+          <arg line='-dir ${option.dir}' />
+        </jobref>
+      </command>
+      <command>
+        <jobref group='ops/app' name='start'>
+          <arg line='-dir ${option.dir}' />
+        </jobref>
+      </command>
+      <command>
+        <jobref group='ops/web' name='start'>
+          <arg line='-dir ${option.dir}' />
+        </jobref>
+      </command>
+      <pluginConfig>
+        <WorkflowStrategy>
+          <node-first />
+        </WorkflowStrategy>
+      </pluginConfig>
+    </sequence>
+  </job>
+</joblist>
