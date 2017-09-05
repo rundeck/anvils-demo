@@ -83,8 +83,8 @@ curl -sfL -o $LIBEXT/jira-notification-1.0.0.jar https://github.com/rundeck-plug
 curl -sfL -o $LIBEXT/jabber-notification-1.0.jar https://github.com/rundeck-plugins/jabber-notification/releases/download/v1.0/jabber-notification-1.0.jar
 }
 # pagerduty
-[[ ! -f $LIBEXT/PagerDutyNotification.groovy ]] && {
-curl -sfL -o $LIBEXT/PagerDutyNotification.groovy https://raw.githubusercontent.com/rundeck-plugins/pagerduty-notification/master/src/PagerDutyNotification.groovy
+[[ ! -f $LIBEXT/pager-duty-notification.zip ]] && {
+curl -sfL -o $LIBEXT/pager-duty-notification.zip https://github.com/rundeck-plugins/pagerduty-notification/archive/1.1.0.zip
 }
 # EC2
 [[ ! -f $LIBEXT/rundeck-ec2-nodes-plugin-1.5.3.jar ]] && {
