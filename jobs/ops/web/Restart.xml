@@ -12,7 +12,7 @@
         <description>Rotate the log</description>
         <node-step-plugin type='nixy-file-rotate'>
           <configuration>
-            <entry key='compress' value='gzip' />
+            <entry key='compress' value='true' />
             <entry key='file' value='${option.dir}/log' />
             <entry key='tstamp-format' value='+%Y%m%d' />
           </configuration>
