@@ -232,7 +232,7 @@ rd projects readme put --motd --text "Watch your feet at all times!" --project $
 # Display readme and motd on the project home page
 rd projects configure update --project $PROJECT -- \
   --project.gui.readme.display=projectHome \
-  --project.gui.motd.display=projectHome
+  --project.gui.motd.display=projectList
 
 
 exit $?
