@@ -229,7 +229,10 @@ EOF
 rd projects readme put --file $readme --project $PROJECT
 # Create a motd
 rd projects readme put --motd --text "Watch your feet at all times!" --project $PROJECT
-
+# Display readme and motd on the project home page
+rd projects configure update --project $PROJECT -- \
+  --project.gui.readme.display=projectHome \
+  --project.gui.motd.display=projectHome
 
 
 exit $?
