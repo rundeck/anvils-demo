@@ -59,11 +59,12 @@ service httpd start
 # Ensure httpd is started on reboot of machine
 chkconfig httpd on
 
-
-# turn off fire wall, Centos 6
-# service iptables stop
-# chkconfig iptables off
-
-# turn off fire wall, Centos 7
-systemctl disable firewalld
-systemctl stop firewalld
+if [ "$(grep -oP '(?<= )[0-9]+(?=\.)' /etc/redhat-release)" -ge 7 ]; then
+	# turn off fire wall, Centos 7
+	systemctl disable firewalld
+	systemctl stop firewalld
+else
+	# fallback, turn off fire wall, Centos 6
+	service iptables stop
+	chkconfig iptables off
+fi
