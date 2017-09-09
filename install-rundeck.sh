@@ -91,10 +91,10 @@ echo " - EC2"
 curl -sfL -o $LIBEXT/rundeck-ec2-nodes-plugin-1.5.5.jar https://github.com/rundeck-plugins/rundeck-ec2-nodes-plugin/releases/download/v1.5.5/rundeck-ec2-nodes-plugin-1.5.5.jar
 }
 
-echo "Install nixy/file ..."
+echo " - nixy/file ..."
 curl -sfL -o $LIBEXT/nixy-file.zip "https://dl.bintray.com/rundeck/rundeck-plugins/nixy-file-1.0.0.zip"
 
-echo "Instal nixy/waitfor ..."
+echo " - nixy/waitfor ..."
 curl -sfL -o $LIBEXT/nixy-waitfor.zip "https://dl.bintray.com/rundeck/rundeck-plugins/nixy-waitfor-1.0.0.zip"
 
 chown -R rundeck:rundeck $LIBEXT
