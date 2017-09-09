@@ -45,8 +45,8 @@ do
 	if ! id $NAME 2>/dev/null
 	then	 :
 	else	 continue
-	fi		
-  
+	fi
+
   echo "Adding system account ${NAME}..."
 	useradd -d /home/$NAME -m $NAME
 
@@ -76,7 +76,7 @@ do
     app) ICON=shopping-cart ;;
     db) ICON=hdd ;;
     www) ICON=globe ;;
-  esac 
+  esac
   cat >> $ETC/anvils-nodes.yaml <<EOF
 ${NAME}.anvils.com:
  name: ${NAME}.anvils.com
@@ -107,10 +107,11 @@ rd keys list --path acme/${PROJECT}
 
 # Configure SSHD to pass RD environment variables through.
 if ! grep -q "^AcceptEnv RD_" /etc/ssh/sshd_config
-then	
+then
 	echo 'AcceptEnv RD_*' >> /etc/ssh/sshd_config
-	/etc/init.d/sshd stop
-	/etc/init.d/sshd start
+#	/etc/init.d/sshd stop
+#	/etc/init.d/sshd start
+  service sshd restart
 fi
 
 # Create the project now there are keys and model data ready.
@@ -138,7 +139,7 @@ RDECK_HOST=$(awk -F= '/framework.server.hostname/ {print $2}' /etc/rundeck/frame
 cat > $ETC/resources.xml <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project>    
+<project>
   <node name="${RDECK_NAME// /}" hostname="${RDECK_HOST// /}" username="rundeck"
       description="Rundeck server node." tags=""
       osFamily="unix" osName="$(uname -s)" osArch="$(uname -m)" osVersion="$(uname -r)"
@@ -191,18 +192,18 @@ cat >$readme<<EOF
 
 __Welcome!__
 
-This project is used to manage the routine operations for "Anvils Online", 
-the one place stop for all you anvils buying needs. 
+This project is used to manage the routine operations for "Anvils Online",
+the one place stop for all you anvils buying needs.
 
-Use the top navigation bar to go to [Jobs](/project/anvils/jobs), 
+Use the top navigation bar to go to [Jobs](/project/anvils/jobs),
 [Nodes](/project/anvils/nodes), and [Activity](/project/anvils/activity).
 
-<img width="300" 
+<img width="300"
      src="http://vignette1.wikia.nocookie.net/clubpenguin/images/c/cf/Smoothie_Smash_Anvil.png/revision/latest?cb=20120909235841"/>
 
 ### Jobs
 
-Jobs are organized into several areas according to role: 
+Jobs are organized into several areas according to role:
 
 * [catalog](/project/anvils/jobs/catalog): Nightly and adhoc jobs to manage the catalog database
 * [ops](/project/anvils/jobs/ops): Restart, status actions for the web and app tiers
@@ -218,15 +219,15 @@ Nodes are tagged according to role.
 * [www](/project/anvils/nodes?filter=tags%3A www): the web servers
 
 
-Nodes can use icons for extra effect [glyphicons](http://glyphicons.bootstrapcheatsheets.com/). 
+Nodes can use icons for extra effect [glyphicons](http://glyphicons.bootstrapcheatsheets.com/).
 For example, you can use a different icon for your node by declaring an attribute for it
-(eg, for the "app" nodes, declare the shopping car icon: `"ui:icon:name": glyphicon-shopping-cart`).
+(eg, for the "app" nodes, declare the shopping car icon: \`"ui:icon:name": glyphicon-shopping-cart\`).
 
 
 EOF
 
 rd projects readme put --file $readme --project $PROJECT
-# Create a motd 
+# Create a motd
 rd projects readme put --motd --text "Watch your feet at all times!" --project $PROJECT
 
 
