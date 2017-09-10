@@ -11,7 +11,7 @@ Vagrant.configure("2") do |config|
   config.ssh.insert_key = true
   #config.vm.box = "bento/centos-6.7"
 
-  # Comment out to use less ressources
+  # uncomment for faster performance
   config.vm.provider "virtualbox" do |vb|
    vb.cpus = "2"
    vb.memory = "2048"
