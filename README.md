@@ -17,9 +17,9 @@ This is a single-machine vagrant configuration that installs
 and configures a rundeck instance and an Apache httpd instance.
 
 The httpd instance is used as a simple web-based file
-repository from which scripts and job options are shared to Rundeck. 
+repository from which scripts and job options are shared to Rundeck.
 
-To run this example, you will bring up a VM using vagrant, log in 
+To run this example, you will bring up a VM using vagrant, log in
 to Rundeck and perform certain jobs.
 
 
@@ -49,9 +49,9 @@ So the team turns to Rundeck. The Dev provided scripts are plugged into Rundeck 
 
 * Collaborators: Release Engineering
 
-The Release Engineering team needs a method to promote new versions of the Anvils software to the artifact repositories used by Operations to do deployments. Because there are several upstream repositories (eg, CI, stable and release) containing any number of releases and associated package versions, the Job should contain smart menus to let users drill down to the package versions they want to promote. We want a mistake-proof method of executing the promotion, and we want it to be logged and visible to all in our organization. 
+The Release Engineering team needs a method to promote new versions of the Anvils software to the artifact repositories used by Operations to do deployments. Because there are several upstream repositories (eg, CI, stable and release) containing any number of releases and associated package versions, the Job should contain smart menus to let users drill down to the package versions they want to promote. We want a mistake-proof method of executing the promotion, and we want it to be logged and visible to all in our organization.
 
-So the team turns to Rundeck. The promotion scripts that pull from one repository and upload to another are plugged into Rundeck jobs. Using Rundeck option providers, the jobs are able to have drop down menus that are populated with the correct repositories and their available artifacts. 
+So the team turns to Rundeck. The promotion scripts that pull from one repository and upload to another are plugged into Rundeck jobs. Using Rundeck option providers, the jobs are able to have drop down menus that are populated with the correct repositories and their available artifacts.
 
 
 ### Story #3: Nightly catalog rebuilds
@@ -76,12 +76,12 @@ the jobs they are granted access to use.
 * dev/dev: The "dev" login is able to run the "Status" job and look at all logs.
 * releng/releng: The "releng" login is able to run the "Promote" job and look at all logs.
 
-After logging in as any of the users mentioned above, click on the user's profile page 
+After logging in as any of the users mentioned above, click on the user's profile page
 to see a list of that users group memberships.
 
 
 The [aclpolicy](https://github.com/rundeck/anvils-demo/tree/master/aclpolicy/)
-files specify what actions users like the "ops" and "dev" can do. All groups can 
+files specify what actions users like the "ops" and "dev" can do. All groups can
 view information about the nodes, jobs, and history so everybody has basic visibility.
 
 When logging into each of the users, notice how the job listing and job toolbar reflect
@@ -95,8 +95,8 @@ the permissions of each user.
 ### Key storage
 
 The Rundeck Keystore stores all the SSH keys used for remote access to the Anvils nodes.
-Private, Public and password data can be stored in the Keystore. 
-The keys can be organized in anyway but the team decides to create a convention that will let them group keys by the  organization name, application and the identity:
+Private, Public and password data can be stored in the Keystore.
+The keys can be organized in any way but the team decides to create a convention that will let them group keys by the  organization name, application and the identity:
 
     {organization}/{application}/{identity}/{keyfile}
 
@@ -109,13 +109,13 @@ After the keys are uploaded, the rundeck instance has these keys loaded:
 * /acme/anvils/www2/id_rsa
 
 Each node is configured to use the appropriate key
-via the `ssh-key-storage-path` node attribute. 
+via the `ssh-key-storage-path` node attribute.
 
 
 ### Nodes
 
-The anvils project contains several nodes. Go to the "Run" page and press the button
-"Show all nodes". You will see the following nodes:
+The anvils project contains several nodes. Go to the "Nodes" page and press the
+"All nodes" filter link. You will see the following nodes:
 
 * app1
 * app2
@@ -136,8 +136,8 @@ Clicking on the "anvils" tag will list all the anvils nodes again.
 
 Pressing the the node name reveals the node's metadata. A node can have any number
 of user defined attributes but some "standard" info is included like OS Family,Name,Architecture.
-You will also see some metadata specific to Anvils is also shown like "anvils-customer" and "anvils-location". Rundeck node metadata is accessible to any command, script or 
-rundeck job to help you keep them environment independent. 
+You will also see some metadata specific to Anvils is also shown like "anvils-customer" and "anvils-location". Rundeck node metadata is accessible to any command, script or
+rundeck job to help you keep them environment independent.
 Here's the metadata for the "www1.anvils.com" node:
 
     www1.anvils.com:
@@ -161,17 +161,17 @@ Note the `ssh-key-storage-path` attribute specifying the path to the SSH key use
 
 Since this is a single-machine Vagrant instance,
 a little bit of cleverness is used to make the single VM masquerade as six Nodes.
-To do this, each node is given its own Linux system account (eg www1, www2). 
-Each node uses the same hostname as the rundeck server(eg localhost). 
+To do this, each node is given its own Linux system account (eg www1, www2).
+Each node uses the same hostname as the rundeck server(eg localhost).
 The Rundeck server
 ssh's to the appropriate node's username to perform any needed actions.
 This is equivalent to invoking ssh via commandline: `$ ssh www1@localhost <command>`.
 
-While this example makes use of the bundled SSH support, Rundeck command dispatching is 
+While this example makes use of the bundled SSH support, Rundeck command dispatching is
 completely pluggable and open ended to use your desired execution framework (eg, winrm, salt, mcollective, custom-xml-rpc, ansible, etc).
 
 You can retrieve the node info for a project using the Rundeck Web API.
-This URL lists the resources for anvils: 
+This URL lists the resources for anvils:
 http://192.168.50.2:4440/api/5/project/anvils/resources .
 
 Of course, this is canned demo data and a real rundeck project generally gets
@@ -184,7 +184,7 @@ It's the equivalent of running `sh -c "command-string"` as the rundeck user on t
 The Anvils team prefers to use bash instead of sh for any commands executed on the Rundeck server.
 
 The rundeck server like the hosts it manages, is described in a resource model as a "node".
-Using three node attributes, the rundeck server is configured to use bash. The 
+Using three node attributes, the rundeck server is configured to use bash. The
 node definition for the server is found in /var/rundeck/projects/anvils/etc/resources.xml.
 
     <project>    
@@ -207,7 +207,7 @@ See the user guide about [custom command and script execution with the script-pl
 
 ### Jobs
 
-The rundeck instance will come up with the following demo jobs 
+The rundeck instance will come up with the following demo jobs
 already loaded. All jobs are organized under a few job groups:
 
 - catalog/nightly_catalog_rebuild - 'rebuild the catalog data'
@@ -217,10 +217,10 @@ already loaded. All jobs are organized under a few job groups:
 - web/start - 'start the web servers'
 - web/stop - 'stop the web servers'
 
-Each job is defined in its own file using the 
-[XML format](http://rundeck.org/docs/manpages/man5/job-v20.html). 
+Each job is defined in its own file using the
+[XML format](http://rundeck.org/docs/manpages/man5/job-v20.html).
 [YAML](http://rundeck.org/docs/manpages/man5/job-yaml-v12.html) could also have been used as an alternative syntax. Rundeck jobs can call
-scripts written in line or stored in a web server by specifying its location with a 
+scripts written in line or stored in a web server by specifying its location with a
 [scripturl](http://rundeck.org/docs/manpages/man5/job-v20.html#script-sequence-step).
 
 Using job groups is optional but is often helpful to organize procedures
@@ -233,8 +233,8 @@ upstream repositories to ones used by operations.
 
 A key part to the promote job is a user interface that lets users manage a hierarchical set of job choices.
 The Promote job prompts the user for several choices about which package versions to publish
-in the ops package repo. 
-The `option` elements specified in the Promote job definition read choices from the 
+in the ops package repo.
+The `option` elements specified in the Promote job definition read choices from the
 [valuesUrl](http://rundeck.org/docs/manpages/man5/job-v20.html#valuesurl-json), which returns JSON data consumable by rundeck. This JSON can be static
 files like in this example, but more typically is generated by an external service or tool.
 
@@ -249,7 +249,7 @@ The Restart job is run by the Operations team to manage the web tier's restart p
 
 The Restart job includes a "method" option to support the two methods to stop the web servers, "normal" and "force".
 Also, because the location of the application installation directory is expected to
-vary, a "dir" option is also presented. 
+vary, a "dir" option is also presented.
 
 This job is defined to execute on nodes tagged "www". The Restart job actually builds on two lower level jobs, web/stop and web/start. This kind of job composition is typical for rundeck users as it gives them building blocks to create higher levels of automation later.
 
@@ -274,13 +274,13 @@ The nightly_catalog_rebuild job is provided by developers to run automatically e
 
 The nightly_catalog_rebuild job is meant to run at 00:00:00 (midnight) every day.
 The [schedule](http://rundeck.org/docs/manpages/man5/job-v20.html#schedule) element in the job definition specifies this in a crontab like format.
-Also, the [notification](http://rundeck.org/docs/manpages/man5/job-v20.html#notification) element is used to send emails upon success and failure to the 
+Also, the [notification](http://rundeck.org/docs/manpages/man5/job-v20.html#notification) element is used to send emails upon success and failure to the
 "bizops@anvils.com" mail group.
 
 The script for this job runs on the database server tagged "db". The script
-is written to use 
+is written to use
 [context variables](http://rundeck.org/docs/manual/job-workflows.html#context-variables)
-which exposes metadata about the job and node information from the resource model. 
+which exposes metadata about the job and node information from the resource model.
 Attributes about the node
 are exposed as environment variables to the script. For example, the db
 node has two custom attributes: anvils-customer and anvils-location. The
@@ -309,7 +309,6 @@ nodes, ssh access, and copies scripts to the apache document root.
 ## Where to go from here
 
 This demo helps introduce new users to Rundeck and gives an idea for how Rundeck can help
-with handoffs between teams, increase visibility and provide self service. 
+with handoffs between teams, increase visibility and provide self service.
 
 See the [Documentation](http://rundeck.org/docs.html) for more information.
-

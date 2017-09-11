@@ -37,7 +37,7 @@ then
 else
     if ! rpm -q rundeck-repo
     then
-        rpm -Uvh http://repo.rundeck.org/latest.rpm 
+        rpm -Uvh http://repo.rundeck.org/latest.rpm
     fi
 fi
 
@@ -51,50 +51,50 @@ chmod 755 ~rundeck
 echo "Installing plugins ..."
 LIBEXT=/var/lib/rundeck/libext # Plugin directory
 
-# springboot
+echo " - springboot"
 [[ ! -f $LIBEXT/springboot-steps.zip ]] && {
     (cd /vagrant/plugins; zip -r $LIBEXT/springboot-steps.zip springboot-steps)
 }
-# mysql
+echo " - mysql"
 [[ ! -f $LIBEXT/mysql-sqlscript-step.zip ]] && {
-    (cd /vagrant/plugins; zip -r $LIBEXT/mysql-sqlscript-step.zip mysql-sqlscript-step)    
+    (cd /vagrant/plugins; zip -r $LIBEXT/mysql-sqlscript-step.zip mysql-sqlscript-step)
 }
-# Hipchat
+echo " - Hipchat"
 [[ ! -f $LIBEXT/rundeck-hipchat-plugin-1.0.0.jar ]] && {
     cp /vagrant/rundeck-hipchat-plugin-1.0.0.jar $LIBEXT
 }
-# nexus
+echo " - nexus"
 [[ ! -f $LIBEXT/nexus-step-plugins-1.0.0.jar ]] && {
 curl -sfL -o $LIBEXT/nexus-step-plugins-1.0.2.jar https://github.com/rundeck-plugins/nexus-step-plugins/releases/download/1.0.2/nexus-step-plugins-1.0.2.jar
 }
-# puppet
+echo " - puppet"
 [[ ! -f $LIBEXT/puppet-apply-step.zip ]] && {
 curl -sfL -o $LIBEXT/puppet-apply-step.zip https://github.com/rundeck-plugins/puppet-apply-step/releases/download/v1.0.0/puppet-apply-step-1.0.0.zip
 }
-# jira
+echo " - jira"
 [[ ! -f $LIBEXT/jira-workflow-step-1.0.0.jar ]] && {
 curl -sfL -o $LIBEXT/jira-workflow-step-1.0.0.jar https://github.com/rundeck-plugins/jira-workflow-step/releases/download/v1.0.0/jira-workflow-step-1.0.0.jar
 }
 [[ ! -f $LIBEXT/jira-notification-1.0.0.jar ]] && {
 curl -sfL -o $LIBEXT/jira-notification-1.0.0.jar https://github.com/rundeck-plugins/jira-notification/releases/download/v1.0.0/jira-notification-1.0.0.jar
 }
-# jabber
+echo " - jabber"
 [[ ! -f $LIBEXT/jabber-notification-1.0.jar ]] && {
 curl -sfL -o $LIBEXT/jabber-notification-1.0.jar https://github.com/rundeck-plugins/jabber-notification/releases/download/v1.0/jabber-notification-1.0.jar
 }
-# pagerduty
-[[ ! -f $LIBEXT/pager-duty-notification.zip ]] && {
-curl -sfL -o $LIBEXT/pager-duty-notification.zip https://github.com/rundeck-plugins/pagerduty-notification/archive/1.1.0.zip
+echo " - pagerduty"
+[[ ! -f $LIBEXT/PagerDutyNotification.groovy ]] && {
+curl -sfL -o $LIBEXT/PagerDutyNotification.groovy https://github.com/rundeck-plugins/pagerduty-notification/raw/master/src/main/groovy/com/rundeck/plugins/PagerResponse.groovy
 }
-# EC2
+echo " - EC2"
 [[ ! -f $LIBEXT/rundeck-ec2-nodes-plugin-1.5.3.jar ]] && {
-curl -sfL -o $LIBEXT/rundeck-ec2-nodes-plugin-1.5.3.jar https://github.com/rundeck-plugins/rundeck-ec2-nodes-plugin/releases/download/v1.5.3/rundeck-ec2-nodes-plugin-1.5.3.jar
+curl -sfL -o $LIBEXT/rundeck-ec2-nodes-plugin-1.5.5.jar https://github.com/rundeck-plugins/rundeck-ec2-nodes-plugin/releases/download/v1.5.5/rundeck-ec2-nodes-plugin-1.5.5.jar
 }
 
-# nixy/file
+echo " - nixy/file ..."
 curl -sfL -o $LIBEXT/nixy-file.zip "https://dl.bintray.com/rundeck/rundeck-plugins/nixy-file-1.0.0.zip"
 
-# nixy/waitfor
+echo " - nixy/waitfor ..."
 curl -sfL -o $LIBEXT/nixy-waitfor.zip "https://dl.bintray.com/rundeck/rundeck-plugins/nixy-waitfor-1.0.0.zip"
 
 chown -R rundeck:rundeck $LIBEXT
@@ -102,7 +102,7 @@ chown -R rundeck:rundeck $LIBEXT
 # Configure the system
 
 # Rewrite the rundeck-config.properties to use the IP of this vagrant VM
-sed -i "s^grails.serverURL=.*^grails.serverURL=http://$RDIP:4440^g" /etc/rundeck/rundeck-config.properties 
+sed -i "s^grails.serverURL=.*^grails.serverURL=http://$RDIP:4440^g" /etc/rundeck/rundeck-config.properties
 
 # Add user accounts and groups to the realm.properties
 cat >> /etc/rundeck/realm.properties <<EOF
@@ -116,7 +116,12 @@ echo "export RD_URL=http://$RDIP:4440 RD_USER=admin RD_PASSWORD=admin RD_PROJECT
 
 #
 # Disable the firewall so we can easily access it from the host
-service iptables stop
+# centos-6
+# service iptables stop
+# centos-7
+systemctl disable firewalld
+systemctl stop firewalld
+
 #
 
 
@@ -129,7 +134,7 @@ then
     echo "Starting rundeck..."
     (
         exec 0>&- # close stdin
-        /etc/init.d/rundeckd start 
+        /etc/init.d/rundeckd start
     ) &> /var/log/rundeck/service.log # redirect stdout/err to a log.
 
     let count=0
